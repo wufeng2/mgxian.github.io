@@ -1,0 +1,1316 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="docker,k8s," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="简介kubernetes是由google主导开发的开源容器管理平台，提供多主机集群，容器编排，容器伸缩等功能">
+<meta name="keywords" content="docker,k8s">
+<meta property="og:type" content="article">
+<meta property="og:title" content="kubernetes基础概念总结">
+<meta property="og:url" content="https://mgxian.dev/posts/34/index.html">
+<meta property="og:site_name" content="mgxian&#39;s blog">
+<meta property="og:description" content="简介kubernetes是由google主导开发的开源容器管理平台，提供多主机集群，容器编排，容器伸缩等功能">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://mgxian.dev/posts/34/k8s-arch.png">
+<meta property="og:updated_time" content="2019-08-26T02:36:09.502Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="kubernetes基础概念总结">
+<meta name="twitter:description" content="简介kubernetes是由google主导开发的开源容器管理平台，提供多主机集群，容器编排，容器伸缩等功能">
+<meta name="twitter:image" content="https://mgxian.dev/posts/34/k8s-arch.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://mgxian.dev/posts/34/"/>
+
+
+
+
+
+  <title>kubernetes基础概念总结 | mgxian's blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">mgxian's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://mgxian.dev/posts/34/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="mgxian">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="mgxian's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">kubernetes基础概念总结</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-09T09:57:40+08:00">
+                2018-07-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/运维/" itemprop="url" rel="index">
+                    <span itemprop="name">运维</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/posts/34/" class="leancloud_visitors" data-flag-title="kubernetes基础概念总结">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p><code>kubernetes</code>是由google主导开发的开源容器管理平台，提供多主机集群，容器编排，容器伸缩等功能</p>
+<a id="more"></a>
+<h3 id="基础组件介绍"><a href="#基础组件介绍" class="headerlink" title="基础组件介绍"></a>基础组件介绍</h3><h4 id="docker"><a href="#docker" class="headerlink" title="docker"></a>docker</h4><p>容器运行环境的一种实现，封装底层容器</p>
+<h4 id="etcd"><a href="#etcd" class="headerlink" title="etcd"></a>etcd</h4><p><code>etcd</code>是<code>kubernetes</code>集群用来存储集群相关数据的数据仓库</p>
+<h4 id="master节点组件"><a href="#master节点组件" class="headerlink" title="master节点组件"></a>master节点组件</h4><p><code>master</code>节点是主集群中的大脑，负责处理外部的api请求，分配调度任务以及管理容器的副本数等</p>
+<h5 id="kube-apiserver"><a href="#kube-apiserver" class="headerlink" title="kube-apiserver"></a>kube-apiserver</h5><ul>
+<li><code>kubernetes</code>对外的服务入口，其他组件通信的纽带，服务无状态，可水平扩容</li>
+</ul>
+<h5 id="kube-scheduler"><a href="#kube-scheduler" class="headerlink" title="kube-scheduler"></a>kube-scheduler</h5><ul>
+<li>负责pod的任务调度</li>
+</ul>
+<h5 id="kube-controller-manager"><a href="#kube-controller-manager" class="headerlink" title="kube-controller-manager"></a>kube-controller-manager</h5><ul>
+<li>处理<code>node</code>节点当机情况</li>
+<li>负责保证pod的副本数</li>
+<li>管理endpoint，连接service和pod</li>
+<li>为新namespace创建默认api token和accounts</li>
+</ul>
+<h4 id="node节点组件"><a href="#node节点组件" class="headerlink" title="node节点组件"></a>node节点组件</h4><p><code>node</code>节点负责干活，执行<code>master</code>节点指派的相关任务</p>
+<h5 id="kubelet"><a href="#kubelet" class="headerlink" title="kubelet"></a>kubelet</h5><ul>
+<li>负责启动停止容器，保证容器运行。</li>
+</ul>
+<h5 id="kube-proxy"><a href="#kube-proxy" class="headerlink" title="kube-proxy"></a>kube-proxy</h5><ul>
+<li>负责根据service生成网络规则，生成路由规则</li>
+</ul>
+<h4 id="组件通信"><a href="#组件通信" class="headerlink" title="组件通信"></a>组件通信</h4><blockquote>
+<p>架构图</p>
+</blockquote>
+<p><img src="/posts/34/k8s-arch.png" alt=""></p>
+<p>组件间的通信全依赖于<code>kube-apiserver</code>，其他组件通过http协议与<code>kube-apiserver</code>交互。</p>
+<p>当使用kubectl或者直接调用<code>kube-apiserver</code>提供的api请求创建pod里和service时工作流程如下：</p>
+<ul>
+<li><code>kube-apiserver</code>把相关的pod和service配置存储到<code>etcd</code>中</li>
+<li><code>kube-scheduler</code>从<code>kube-apiserver</code>获取到相关pod的配置，根据集群中的资源和条件限制把pod调度到相应的<code>node</code>节点上</li>
+<li><code>kube-controller-manager</code>从<code>kube-apiserver</code>获取到相关pod和service的配置，定期检查pod的状态，保证有用户配置的足够数量的pod副本在运行，生成service到pod的规则关系。</li>
+<li><code>kubelet</code>从<code>kube-apiserver</code>获取分配到本节点的相关pod配置，在本地启动容器并定期检查返回容器状态</li>
+<li><code>kube-proxy</code>从<code>kube-apiserver</code>获取service到pod的规则，在本节点维护<code>iptable</code>或者<code>ipvs</code>相关路由规则</li>
+</ul>
+<h3 id="基础概念"><a href="#基础概念" class="headerlink" title="基础概念"></a>基础概念</h3><h4 id="pod"><a href="#pod" class="headerlink" title="pod"></a>pod</h4><ul>
+<li><code>kubernetes</code>的最小调度单元，一个pod中可以有多个容器，多个容器共享网络和存储卷</li>
+</ul>
+<h4 id="service"><a href="#service" class="headerlink" title="service"></a>service</h4><ul>
+<li><code>kubernetes</code>抽象出来一个概念，可以理解为负载均衡器，后端接pod</li>
+</ul>
+<h4 id="cluster-ip"><a href="#cluster-ip" class="headerlink" title="cluster ip"></a>cluster ip</h4><ul>
+<li>service在集群中的ip，相当负载均衡器的ip</li>
+</ul>
+<h4 id="ingress"><a href="#ingress" class="headerlink" title="ingress"></a>ingress</h4><ul>
+<li>对集群外部暴露集群内部service的一种方式</li>
+</ul>
+<h4 id="nodeport"><a href="#nodeport" class="headerlink" title="nodeport"></a>nodeport</h4><ul>
+<li>对集群外部暴露服务的第二种方式，跟随service配置，让集群中的<code>node</code>节点都监听相应的端口，可以通过<code>node</code>节点访问集群内部service</li>
+</ul>
+<h4 id="loadbalancer"><a href="#loadbalancer" class="headerlink" title="loadbalancer"></a>loadbalancer</h4><ul>
+<li>对集群外部暴露集群内部service的一种方式，一般只有在云平台才能使用</li>
+</ul>
+<h4 id="deployment"><a href="#deployment" class="headerlink" title="deployment"></a>deployment</h4><ul>
+<li>封装了<code>pod/replicaset</code>，可以实现指定pod副本数量，滚动更新，扩容pod，一般一个应用（服务）一个<code>deployment</code></li>
+</ul>
+<h4 id="statefullSet"><a href="#statefullSet" class="headerlink" title="statefullSet"></a>statefullSet</h4><ul>
+<li>相当于有状态服务的<code>deployment</code>，重启后，主机名和pod的名称不会改变</li>
+</ul>
+<h4 id="daemonSet"><a href="#daemonSet" class="headerlink" title="daemonSet"></a>daemonSet</h4><ul>
+<li>在每个<code>node</code>节点都需要运行的pod可以使用<code>daemonSet</code></li>
+</ul>
+<h4 id="job"><a href="#job" class="headerlink" title="job"></a>job</h4><ul>
+<li>一次性任务</li>
+</ul>
+<h4 id="cronJob"><a href="#cronJob" class="headerlink" title="cronJob"></a>cronJob</h4><ul>
+<li>类似于<code>crontab</code>定时执行任务</li>
+</ul>
+<h4 id="dns"><a href="#dns" class="headerlink" title="dns"></a>dns</h4><ul>
+<li><code>kube-dns/coredns</code>提供集群中的dns服务，可以解析service到<code>cluster ip</code>，实现服务发现</li>
+</ul>
+<h4 id="pv"><a href="#pv" class="headerlink" title="pv"></a>pv</h4><ul>
+<li>管理员用来提前创建好的存储空间，供用户申请使用</li>
+</ul>
+<h4 id="pvc"><a href="#pvc" class="headerlink" title="pvc"></a>pvc</h4><ul>
+<li>用户用来申请存储空间</li>
+</ul>
+<h4 id="storageClass"><a href="#storageClass" class="headerlink" title="storageClass"></a>storageClass</h4><ul>
+<li>定义存储类供pvc使用，当用户通过pvc并指定<code>storageClass</code>请求pv时<code>kubernetes</code>可以根据<code>storageClass</code>动态创建pv</li>
+</ul>
+<h3 id="排错技巧"><a href="#排错技巧" class="headerlink" title="排错技巧"></a>排错技巧</h3><h4 id="查看日志"><a href="#查看日志" class="headerlink" title="查看日志"></a>查看日志</h4><h5 id="查看pod日志"><a href="#查看pod日志" class="headerlink" title="查看pod日志"></a>查看pod日志</h5><ul>
+<li>kubectl logs pod-name</li>
+</ul>
+<h5 id="查看事件"><a href="#查看事件" class="headerlink" title="查看事件"></a>查看事件</h5><ul>
+<li>kubectl describe pod-name</li>
+</ul>
+<h5 id="查看docker日志"><a href="#查看docker日志" class="headerlink" title="查看docker日志"></a>查看docker日志</h5><ul>
+<li><p>通过<code>kubectl get pod -o wide</code>找到容器运行的<code>node</code>节点</p>
+</li>
+<li><p>在<code>node</code>节点上通过<code>docker ps -a</code>找到出错的容器</p>
+</li>
+<li><p>docker logs container-id</p>
+</li>
+</ul>
+<h5 id="查看kubelet及其他组件日志"><a href="#查看kubelet及其他组件日志" class="headerlink" title="查看kubelet及其他组件日志"></a>查看kubelet及其他组件日志</h5><ul>
+<li>journalctl -u kubelet</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/docker/" rel="tag"># docker</a>
+          
+            <a href="/tags/k8s/" rel="tag"># k8s</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/posts/33/" rel="next" title="centos7使用kubeadm安装k8s-1.11版本多主高可用">
+                <i class="fa fa-chevron-left"></i> centos7使用kubeadm安装k8s-1.11版本多主高可用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/posts/35/" rel="prev" title="centos7手动安装k8s-1.11版本">
+                centos7手动安装k8s-1.11版本 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="mgxian" />
+          <p class="site-author-name" itemprop="name">mgxian</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/mgxian" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基础组件介绍"><span class="nav-number">2.</span> <span class="nav-text">基础组件介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#docker"><span class="nav-number">2.1.</span> <span class="nav-text">docker</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#etcd"><span class="nav-number">2.2.</span> <span class="nav-text">etcd</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#master节点组件"><span class="nav-number">2.3.</span> <span class="nav-text">master节点组件</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#kube-apiserver"><span class="nav-number">2.3.1.</span> <span class="nav-text">kube-apiserver</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#kube-scheduler"><span class="nav-number">2.3.2.</span> <span class="nav-text">kube-scheduler</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#kube-controller-manager"><span class="nav-number">2.3.3.</span> <span class="nav-text">kube-controller-manager</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#node节点组件"><span class="nav-number">2.4.</span> <span class="nav-text">node节点组件</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#kubelet"><span class="nav-number">2.4.1.</span> <span class="nav-text">kubelet</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#kube-proxy"><span class="nav-number">2.4.2.</span> <span class="nav-text">kube-proxy</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#组件通信"><span class="nav-number">2.5.</span> <span class="nav-text">组件通信</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基础概念"><span class="nav-number">3.</span> <span class="nav-text">基础概念</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#pod"><span class="nav-number">3.1.</span> <span class="nav-text">pod</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#service"><span class="nav-number">3.2.</span> <span class="nav-text">service</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#cluster-ip"><span class="nav-number">3.3.</span> <span class="nav-text">cluster ip</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ingress"><span class="nav-number">3.4.</span> <span class="nav-text">ingress</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#nodeport"><span class="nav-number">3.5.</span> <span class="nav-text">nodeport</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#loadbalancer"><span class="nav-number">3.6.</span> <span class="nav-text">loadbalancer</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#deployment"><span class="nav-number">3.7.</span> <span class="nav-text">deployment</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#statefullSet"><span class="nav-number">3.8.</span> <span class="nav-text">statefullSet</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#daemonSet"><span class="nav-number">3.9.</span> <span class="nav-text">daemonSet</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#job"><span class="nav-number">3.10.</span> <span class="nav-text">job</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#cronJob"><span class="nav-number">3.11.</span> <span class="nav-text">cronJob</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#dns"><span class="nav-number">3.12.</span> <span class="nav-text">dns</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#pv"><span class="nav-number">3.13.</span> <span class="nav-text">pv</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#pvc"><span class="nav-number">3.14.</span> <span class="nav-text">pvc</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#storageClass"><span class="nav-number">3.15.</span> <span class="nav-text">storageClass</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#排错技巧"><span class="nav-number">4.</span> <span class="nav-text">排错技巧</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#查看日志"><span class="nav-number">4.1.</span> <span class="nav-text">查看日志</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#查看pod日志"><span class="nav-number">4.1.1.</span> <span class="nav-text">查看pod日志</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#查看事件"><span class="nav-number">4.1.2.</span> <span class="nav-text">查看事件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#查看docker日志"><span class="nav-number">4.1.3.</span> <span class="nav-text">查看docker日志</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#查看kubelet及其他组件日志"><span class="nav-number">4.1.4.</span> <span class="nav-text">查看kubelet及其他组件日志</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">mgxian</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("iQlP5L75WVCE1k0dTxnzi15B-gzGzoHsz", "vLlwNDAYowJRpNIfirPwn8Cy");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

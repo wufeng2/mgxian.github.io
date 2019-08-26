@@ -1,0 +1,1400 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="docker,k8s,log," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="简介本文主要介绍在k8s中收集应用的日志方案，应用运行中日志，一般情况下都需要收集存储到一个集中的日志管理系统中，可以方便对日志进行分析统计，监控，甚至用于机器学习，智能分析应用系统问题，及时修复应用所存在的问题。 在k8s集群中应用一般有如下日志输出方式  直接遵循docker官方建议把日志输出到标准输出或者标准错误输出 输出日志到容器内指定目录中 应用直接发送日志给日志收集系统  本文会综合部">
+<meta name="keywords" content="docker,k8s,log">
+<meta property="og:type" content="article">
+<meta property="og:title" content="k8s日志收集实战">
+<meta property="og:url" content="https://mgxian.dev/posts/45/index.html">
+<meta property="og:site_name" content="mgxian&#39;s blog">
+<meta property="og:description" content="简介本文主要介绍在k8s中收集应用的日志方案，应用运行中日志，一般情况下都需要收集存储到一个集中的日志管理系统中，可以方便对日志进行分析统计，监控，甚至用于机器学习，智能分析应用系统问题，及时修复应用所存在的问题。 在k8s集群中应用一般有如下日志输出方式  直接遵循docker官方建议把日志输出到标准输出或者标准错误输出 输出日志到容器内指定目录中 应用直接发送日志给日志收集系统  本文会综合部">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://mgxian.dev/posts/45/k8s-log-kibana-create-index.png">
+<meta property="og:image" content="https://mgxian.dev/posts/45/k8s-log-kibana-create-index-2.png">
+<meta property="og:image" content="https://mgxian.dev/posts/45/k8s-log-kibana-discover-1.png">
+<meta property="og:image" content="https://mgxian.dev/posts/45/k8s-log-kibana-discover-2.png">
+<meta property="og:image" content="https://mgxian.dev/posts/45/k8s-log-kibana-discover-3.png">
+<meta property="og:image" content="https://mgxian.dev/posts/45/k8s-log-kibana-discover-4.png">
+<meta property="og:image" content="https://mgxian.dev/posts/45/k8s-log-kibana-discover-5.png">
+<meta property="og:image" content="https://mgxian.dev/posts/45/通用应用日志收集架构图.png">
+<meta property="og:image" content="https://mgxian.dev/posts/45/大流量应用日志收集架构图.png">
+<meta property="og:image" content="https://mgxian.dev/posts/45/k8s-log-elk-1.png">
+<meta property="og:image" content="https://mgxian.dev/posts/45/k8s-log-efk-1.png">
+<meta property="og:image" content="https://mgxian.dev/posts/45/k8s-log-kibana-1.png">
+<meta property="og:image" content="https://mgxian.dev/posts/45/k8s-log-kibana-0.png">
+<meta property="og:image" content="https://mgxian.dev/posts/45/k8s-log-kibana-2.png">
+<meta property="og:image" content="https://mgxian.dev/posts/45/k8s-log-kibana-3.png">
+<meta property="og:image" content="https://mgxian.dev/posts/45/k8s-log-kibana-4.png">
+<meta property="og:image" content="https://mgxian.dev/posts/45/k8s-log-kibana-5.png">
+<meta property="og:image" content="https://mgxian.dev/posts/45/k8s-log-kibana-6.png">
+<meta property="og:image" content="https://mgxian.dev/posts/45/k8s-log-kibana-7.png">
+<meta property="og:image" content="https://mgxian.dev/posts/45/k8s-log-kibana-8.png">
+<meta property="og:image" content="https://mgxian.dev/posts/45/k8s-log-kibana-9.png">
+<meta property="og:image" content="https://mgxian.dev/posts/45/k8s-log-kibana-10.png">
+<meta property="og:image" content="https://mgxian.dev/posts/45/k8s-log-kibana-11.png">
+<meta property="og:image" content="https://mgxian.dev/posts/45/k8s-log-kibana-12.png">
+<meta property="og:image" content="https://mgxian.dev/posts/45/k8s-log-kibana-13.png">
+<meta property="og:image" content="https://mgxian.dev/posts/45/k8s-log-kibana-14.png">
+<meta property="og:image" content="https://mgxian.dev/posts/45/k8s-log-kibana-15.png">
+<meta property="og:updated_time" content="2019-08-26T02:36:09.480Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="k8s日志收集实战">
+<meta name="twitter:description" content="简介本文主要介绍在k8s中收集应用的日志方案，应用运行中日志，一般情况下都需要收集存储到一个集中的日志管理系统中，可以方便对日志进行分析统计，监控，甚至用于机器学习，智能分析应用系统问题，及时修复应用所存在的问题。 在k8s集群中应用一般有如下日志输出方式  直接遵循docker官方建议把日志输出到标准输出或者标准错误输出 输出日志到容器内指定目录中 应用直接发送日志给日志收集系统  本文会综合部">
+<meta name="twitter:image" content="https://mgxian.dev/posts/45/k8s-log-kibana-create-index.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://mgxian.dev/posts/45/"/>
+
+
+
+
+
+  <title>k8s日志收集实战 | mgxian's blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">mgxian's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://mgxian.dev/posts/45/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="mgxian">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="mgxian's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">k8s日志收集实战</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-11T17:30:48+08:00">
+                2018-08-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/运维/" itemprop="url" rel="index">
+                    <span itemprop="name">运维</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/posts/45/" class="leancloud_visitors" data-flag-title="k8s日志收集实战">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>本文主要介绍在k8s中收集应用的日志方案，应用运行中日志，一般情况下都需要收集存储到一个集中的日志管理系统中，可以方便对日志进行分析统计，监控，甚至用于机器学习，智能分析应用系统问题，及时修复应用所存在的问题。</p>
+<p>在k8s集群中应用一般有如下日志输出方式</p>
+<ul>
+<li>直接遵循docker官方建议把日志输出到标准输出或者标准错误输出</li>
+<li>输出日志到容器内指定目录中</li>
+<li>应用直接发送日志给日志收集系统</li>
+</ul>
+<p>本文会综合部署上述日志收集方案。<br><a id="more"></a><br>日志收集组件说明</p>
+<ul>
+<li>elastisearch 存储收集到的日志</li>
+<li>kibana 可视化收集到的日志</li>
+<li>logstash 汇总处理日志发送给elastisearch 存储</li>
+<li>filebeat 读取容器或者应用日志文件处理发送给elastisearch或者logstash，也可用于汇总日志</li>
+<li>fluentd 读取容器或者应用日志文件处理发送给elastisearch，也可用于汇总日志</li>
+<li>fluent-bit 读取容器或者应用日志文件处理发送给elastisearch或者fluentd</li>
+</ul>
+<h3 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h3><blockquote>
+<p>本次实验使用了3台虚拟机做k8s集群，每台虚拟机3G内存</p>
+</blockquote>
+<h4 id="部署前的准备"><a href="#部署前的准备" class="headerlink" title="部署前的准备"></a>部署前的准备</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 拉取文件</span></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/mgxian/k8s-log.git</span><br><span class="line"><span class="built_in">cd</span> k8s-log</span><br><span class="line">git checkout v1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建 logging namespace</span></span><br><span class="line">kubectl apply -f logging-namespace.yaml</span><br></pre></td></tr></table></figure>
+<h4 id="部署elastisearch"><a href="#部署elastisearch" class="headerlink" title="部署elastisearch"></a>部署elastisearch</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 本次部署虽然使用 StatefulSet 但是没有使用pv进行持久化数据存储</span></span><br><span class="line"><span class="comment"># pod重启之后，数据会丢失，生产环境一定要使用pv持久化存储数据</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署</span></span><br><span class="line">kubectl apply -f elasticsearch.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看状态</span></span><br><span class="line">kubectl get pods,svc -n logging -o wide</span><br><span class="line"></span><br><span class="line"><span class="comment"># 等待所有pod变成running状态 </span></span><br><span class="line"><span class="comment"># 访问测试</span></span><br><span class="line"><span class="comment"># 如果测试都有数据返回代表部署成功</span></span><br><span class="line">kubectl run curl -n logging --image=radial/busyboxplus:curl -i --tty</span><br><span class="line">nslookup elasticsearch-logging</span><br><span class="line">curl <span class="string">'http://elasticsearch-logging:9200/_cluster/health?pretty'</span></span><br><span class="line">curl <span class="string">'http://elasticsearch-logging:9200/_cat/nodes'</span></span><br><span class="line"><span class="built_in">exit</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 清理测试</span></span><br><span class="line">kubectl delete deploy curl -n logging</span><br></pre></td></tr></table></figure>
+<h4 id="部署kibana"><a href="#部署kibana" class="headerlink" title="部署kibana"></a>部署kibana</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 部署</span></span><br><span class="line">kubectl apply -f kibana.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看状态</span></span><br><span class="line">kubectl get pods,svc -n logging -o wide</span><br><span class="line"></span><br><span class="line"><span class="comment"># 访问测试</span></span><br><span class="line"><span class="comment"># 浏览器访问下面输出的地址 看到 kibana 界面代表正常</span></span><br><span class="line"><span class="comment"># 11.11.11.112 为集群中某个 node 节点ip</span></span><br><span class="line">KIBANA_NODEPORT=$(kubectl get svc -n logging | grep kibana-logging | awk <span class="string">'&#123;print $(NF-1)&#125;'</span> | awk -F[:/] <span class="string">'&#123;print $2&#125;'</span>)</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"http://11.11.11.112:<span class="variable">$KIBANA_NODEPORT</span>/"</span></span><br></pre></td></tr></table></figure>
+<h4 id="部署fluentd收集日志"><a href="#部署fluentd收集日志" class="headerlink" title="部署fluentd收集日志"></a>部署fluentd收集日志</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># fluentd 以 daemoset 方式部署</span></span><br><span class="line"><span class="comment"># 在每个节点上启动fluentd容器，收集k8s组件，docker以及容器的日志</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 给每个需要启动fluentd的节点打相关label</span></span><br><span class="line"><span class="comment"># kubectl label node lab1 beta.kubernetes.io/fluentd-ds-ready=true</span></span><br><span class="line">kubectl label nodes --all beta.kubernetes.io/fluentd-ds-ready=<span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署</span></span><br><span class="line">kubectl apply -f fluentd-es-configmap.yaml</span><br><span class="line">kubectl apply -f fluentd-es-ds.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看状态</span></span><br><span class="line">kubectl get pods,svc -n logging -o wide</span><br></pre></td></tr></table></figure>
+<h4 id="kibana查看日志"><a href="#kibana查看日志" class="headerlink" title="kibana查看日志"></a>kibana查看日志</h4><blockquote>
+<p>创建<code>index fluentd-k8s-*</code>，由于需要拉取镜像启动容器，可能需要等待几分钟才能看到索引和数据</p>
+</blockquote>
+<p><img src="/posts/45/k8s-log-kibana-create-index.png" alt=""></p>
+<p><img src="/posts/45/k8s-log-kibana-create-index-2.png" alt=""></p>
+<blockquote>
+<p>查看日志</p>
+</blockquote>
+<p><img src="/posts/45/k8s-log-kibana-discover-1.png" alt=""></p>
+<h3 id="应用日志收集测试"><a href="#应用日志收集测试" class="headerlink" title="应用日志收集测试"></a>应用日志收集测试</h3><h4 id="应用日志输出到标准输出测试"><a href="#应用日志输出到标准输出测试" class="headerlink" title="应用日志输出到标准输出测试"></a>应用日志输出到标准输出测试</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 启动测试日志输出</span></span><br><span class="line">kubectl run <span class="built_in">echo</span>-test --image=radial/busyboxplus:curl -- sh -c <span class="string">'count=1;while true;do echo log to stdout $count;sleep 1;count=$(($count+1));done'</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看状态</span></span><br><span class="line">kubectl get pods -o wide</span><br><span class="line"></span><br><span class="line"><span class="comment"># 命令行查看日志</span></span><br><span class="line">ECHO_TEST_POD=$(kubectl get pods | grep <span class="built_in">echo</span>-test | awk <span class="string">'&#123;print $1&#125;'</span>)</span><br><span class="line">kubectl logs -f <span class="variable">$ECHO_TEST_POD</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 刷新 kibana 查看是否有新日志进入</span></span><br></pre></td></tr></table></figure>
+<p><img src="/posts/45/k8s-log-kibana-discover-2.png" alt=""></p>
+<h4 id="应用日志输出到容器指定目录-filebeat收集"><a href="#应用日志输出到容器指定目录-filebeat收集" class="headerlink" title="应用日志输出到容器指定目录(filebeat收集)"></a>应用日志输出到容器指定目录(filebeat收集)</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 部署</span></span><br><span class="line">kubectl apply -f <span class="built_in">log</span>-contanier-file-filebeat.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看</span></span><br><span class="line">kubectl get pods -o wide</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>添加<code>index filebeat-k8s-*</code> 查看日志</p>
+</blockquote>
+<p><img src="/posts/45/k8s-log-kibana-discover-3.png" alt=""></p>
+<h4 id="应用日志输出到容器指定目录-fluent-bit收集"><a href="#应用日志输出到容器指定目录-fluent-bit收集" class="headerlink" title="应用日志输出到容器指定目录(fluent-bit收集)"></a>应用日志输出到容器指定目录(fluent-bit收集)</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 部署</span></span><br><span class="line">kubectl apply -f <span class="built_in">log</span>-contanier-file-fluentbit.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看</span></span><br><span class="line">kubectl get pods -o wide</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>添加<code>index fluentbit-k8s-*</code> 查看日志</p>
+</blockquote>
+<p><img src="/posts/45/k8s-log-kibana-discover-4.png" alt=""></p>
+<h4 id="应用直接发送日志到日志系统"><a href="#应用直接发送日志到日志系统" class="headerlink" title="应用直接发送日志到日志系统"></a>应用直接发送日志到日志系统</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 本次测试应用直接输出日志到 elasticsearch</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署</span></span><br><span class="line">kubectl apply -f <span class="built_in">log</span>-contanier-es.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看</span></span><br><span class="line">kubectl get pods -o wide</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>添加<code>index k8s-app-*</code> 查看日志</p>
+</blockquote>
+<p><img src="/posts/45/k8s-log-kibana-discover-5.png" alt=""></p>
+<h4 id="清理"><a href="#清理" class="headerlink" title="清理"></a>清理</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">kubectl delete -f <span class="built_in">log</span>-contanier-es.yaml</span><br><span class="line">kubectl delete -f <span class="built_in">log</span>-contanier-file-fluentbit.yaml</span><br><span class="line">kubectl delete -f <span class="built_in">log</span>-contanier-file-filebeat.yaml</span><br><span class="line">kubectl delete deploy <span class="built_in">echo</span>-test</span><br></pre></td></tr></table></figure>
+<h3 id="日志收集系统总结"><a href="#日志收集系统总结" class="headerlink" title="日志收集系统总结"></a>日志收集系统总结</h3><blockquote>
+<p>本小节的图表以ELK技术栈展示说明，实际使用过程中可以使用EFK技术栈，使用<code>fluentd</code>代替<code>logstash</code>，使用<code>fluent-bit</code>代替<code>filebeat</code>。由于<code>fluentd</code>在内存占用和性能上有更好的优势，推荐使用<code>fluentd</code>替代<code>logstash</code> ，<code>fluent-bit</code>和<code>filebeat</code>性能和内存占用相差不大</p>
+</blockquote>
+<h4 id="k8s集群日志通用收集方案"><a href="#k8s集群日志通用收集方案" class="headerlink" title="k8s集群日志通用收集方案"></a>k8s集群日志通用收集方案</h4><ul>
+<li>集群内相关组件日志使用<code>fluentd/filebeat</code>收集</li>
+<li>应用输出到标准输出或标准错误输出的日志使用<code>fluentd/filebeat</code>收集</li>
+<li>应用输出到容器中指定文件日志使用<code>fluent-bit/filebeat</code>收集</li>
+</ul>
+<h4 id="通用日志收集系统"><a href="#通用日志收集系统" class="headerlink" title="通用日志收集系统"></a>通用日志收集系统</h4><blockquote>
+<p>通用日志收集系统架构</p>
+</blockquote>
+<p><img src="/posts/45/通用应用日志收集架构图.png" alt=""></p>
+<p>架构说明</p>
+<ul>
+<li>日志收集与处理解耦</li>
+<li>由于收集和处理过程间加入了队列，当日志出现暴增时，可以避免分析处理节点被打垮，给分析处理节点足够时间消化日志数据</li>
+<li>日志分析处理节点可以动态伸缩</li>
+</ul>
+<h4 id="大流量日志收集系统"><a href="#大流量日志收集系统" class="headerlink" title="大流量日志收集系统"></a>大流量日志收集系统</h4><blockquote>
+<p>大流量日志收集系统架构图</p>
+</blockquote>
+<p><img src="/posts/45/大流量应用日志收集架构图.png" alt=""></p>
+<p>架构说明</p>
+<ul>
+<li>当日志流量过大时，如果每一个日志收集节点都直连队列写数据，由于有很多分散的连接及写请求，会给队列造成压力。如果日志都发送到logstash收集节点，再集中写入队列，会减轻队列压力。</li>
+</ul>
+<h4 id="应用日志收集实验-ELK技术栈"><a href="#应用日志收集实验-ELK技术栈" class="headerlink" title="应用日志收集实验(ELK技术栈)"></a>应用日志收集实验(ELK技术栈)</h4><p>以收集<code>nginx</code>日志为例，进行日志收集分析实验， 复用之前实验创建的<code>elasticsearch，kibana</code>应用。实验采用大流量日志收集架构</p>
+<h5 id="部署redis队列"><a href="#部署redis队列" class="headerlink" title="部署redis队列"></a>部署redis队列</h5><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 部署</span></span><br><span class="line">kubectl apply -f redis.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看</span></span><br><span class="line">kubectl get pods -n logging</span><br></pre></td></tr></table></figure>
+<h5 id="部署indexer分析日志"><a href="#部署indexer分析日志" class="headerlink" title="部署indexer分析日志"></a>部署indexer分析日志</h5><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 部署</span></span><br><span class="line">kubectl apply -f logstash-indexer.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看</span></span><br><span class="line">kubectl get pods -n logging</span><br></pre></td></tr></table></figure>
+<h5 id="部署shipper集中日志"><a href="#部署shipper集中日志" class="headerlink" title="部署shipper集中日志"></a>部署shipper集中日志</h5><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 部署</span></span><br><span class="line">kubectl apply -f logstash-shipper.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看</span></span><br><span class="line">kubectl get pods -n logging</span><br></pre></td></tr></table></figure>
+<h5 id="部署nginx测试日志收集"><a href="#部署nginx测试日志收集" class="headerlink" title="部署nginx测试日志收集"></a>部署nginx测试日志收集</h5><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 部署</span></span><br><span class="line">kubectl apply -f nginx-log-filebeat.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看</span></span><br><span class="line">kubectl get pods</span><br></pre></td></tr></table></figure>
+<h5 id="持续访问nginx生成日志"><a href="#持续访问nginx生成日志" class="headerlink" title="持续访问nginx生成日志"></a>持续访问nginx生成日志</h5><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 部署</span></span><br><span class="line">kubectl run curl-test --image=radial/busyboxplus:curl -- sh -c <span class="string">'count=1;while true;do curl -s -H "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.89 Safari/537.36 $count" http://nginx-log-filebeat/ &gt;/dev/null;sleep 1;count=$(($count+1));done'</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看</span></span><br><span class="line">kubectl get pods</span><br></pre></td></tr></table></figure>
+<h5 id="访问kibana查看日志"><a href="#访问kibana查看日志" class="headerlink" title="访问kibana查看日志"></a>访问kibana查看日志</h5><blockquote>
+<p>添加<code>index k8s-logging-elk-*</code> 由于 logstash 启动较慢，可能需要等待数分钟才能看到数据</p>
+</blockquote>
+<p><img src="/posts/45/k8s-log-elk-1.png" alt=""></p>
+<h5 id="清理-1"><a href="#清理-1" class="headerlink" title="清理"></a>清理</h5><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">kubectl delete -f redis.yaml</span><br><span class="line">kubectl delete -f logstash-indexer.yaml</span><br><span class="line">kubectl delete -f logstash-shipper.yaml</span><br><span class="line">kubectl delete -f nginx-log-filebeat.yaml</span><br><span class="line">kubectl delete deploy curl-test</span><br></pre></td></tr></table></figure>
+<h4 id="应用日志收集实验-EFK技术栈"><a href="#应用日志收集实验-EFK技术栈" class="headerlink" title="应用日志收集实验(EFK技术栈)"></a>应用日志收集实验(EFK技术栈)</h4><p>由于fluentd官方不提供redis队列的支持，本次实验移除了redis队列。</p>
+<h5 id="部署indexer分析日志-1"><a href="#部署indexer分析日志-1" class="headerlink" title="部署indexer分析日志"></a>部署indexer分析日志</h5><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 部署</span></span><br><span class="line">kubectl apply -f fluentd-indexer.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看</span></span><br><span class="line">kubectl get pods -n logging</span><br></pre></td></tr></table></figure>
+<h5 id="部署shipper集中日志-1"><a href="#部署shipper集中日志-1" class="headerlink" title="部署shipper集中日志"></a>部署shipper集中日志</h5><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 部署</span></span><br><span class="line">kubectl apply -f fluentd-shipper.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看</span></span><br><span class="line">kubectl get pods -n logging</span><br></pre></td></tr></table></figure>
+<h5 id="部署nginx测试日志收集-1"><a href="#部署nginx测试日志收集-1" class="headerlink" title="部署nginx测试日志收集"></a>部署nginx测试日志收集</h5><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 部署</span></span><br><span class="line">kubectl apply -f nginx-log-fluentbit.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看</span></span><br><span class="line">kubectl get pods</span><br></pre></td></tr></table></figure>
+<h5 id="持续访问nginx生成日志-1"><a href="#持续访问nginx生成日志-1" class="headerlink" title="持续访问nginx生成日志"></a>持续访问nginx生成日志</h5><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 部署</span></span><br><span class="line">kubectl run curl-test --image=radial/busyboxplus:curl -- sh -c <span class="string">'count=1;while true;do curl -s -H "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.89 Safari/537.36 $count" http://nginx-log-fluentbit/ &gt;/dev/null;sleep 1;count=$(($count+1));done'</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看</span></span><br><span class="line">kubectl get pod</span><br></pre></td></tr></table></figure>
+<h5 id="访问kibana查看日志-1"><a href="#访问kibana查看日志-1" class="headerlink" title="访问kibana查看日志"></a>访问kibana查看日志</h5><blockquote>
+<p>添加<code>index k8s-logging-efk-*</code></p>
+</blockquote>
+<p><img src="/posts/45/k8s-log-efk-1.png" alt=""></p>
+<h5 id="清理-2"><a href="#清理-2" class="headerlink" title="清理"></a>清理</h5><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">kubectl delete -f fluentd-indexer.yaml</span><br><span class="line">kubectl delete -f fluentd-shipper.yaml</span><br><span class="line">kubectl delete -f nginx-log-fluentbit.yaml</span><br><span class="line">kubectl delete deploy curl-test</span><br></pre></td></tr></table></figure>
+<h3 id="应用日志可视化"><a href="#应用日志可视化" class="headerlink" title="应用日志可视化"></a>应用日志可视化</h3><h4 id="部署日志收集需要的组件"><a href="#部署日志收集需要的组件" class="headerlink" title="部署日志收集需要的组件"></a>部署日志收集需要的组件</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 部署 indexer shipper fluentbit</span></span><br><span class="line">kubectl apply -f fluentd-indexer.yaml</span><br><span class="line">kubectl apply -f fluentd-shipper.yaml</span><br><span class="line">kubectl apply -f nginx-log-fluentbit.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看</span></span><br><span class="line">kubectl get pods</span><br><span class="line">kubectl get pods -n logging</span><br></pre></td></tr></table></figure>
+<h4 id="模拟用户访问"><a href="#模拟用户访问" class="headerlink" title="模拟用户访问"></a>模拟用户访问</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 部署</span></span><br><span class="line">kubectl apply -f web-load-gen.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看</span></span><br><span class="line">kubectl get pods</span><br></pre></td></tr></table></figure>
+<h4 id="访问kibana查看日志-2"><a href="#访问kibana查看日志-2" class="headerlink" title="访问kibana查看日志"></a>访问kibana查看日志</h4><blockquote>
+<p>添加<code>index k8s-logging-efk-*</code></p>
+</blockquote>
+<p><img src="/posts/45/k8s-log-kibana-1.png" alt=""></p>
+<h4 id="创建图表"><a href="#创建图表" class="headerlink" title="创建图表"></a>创建图表</h4><h5 id="创建-Search"><a href="#创建-Search" class="headerlink" title="创建 Search"></a>创建 Search</h5><p>制作 Visualize 的时候需要使用</p>
+<p>按指定条件搜索日志</p>
+<p><img src="/posts/45/k8s-log-kibana-0.png" alt=""></p>
+<p>保存 Search</p>
+<p><img src="/posts/45/k8s-log-kibana-2.png" alt=""></p>
+<h5 id="创建-Visualize"><a href="#创建-Visualize" class="headerlink" title="创建 Visualize"></a>创建 Visualize</h5><p>创建好的 Visualize 可以添加到 Dashboard 中</p>
+<p>选择制作 Visualize</p>
+<p><img src="/posts/45/k8s-log-kibana-3.png" alt=""></p>
+<p>选择 Visualize 类型</p>
+<p><img src="/posts/45/k8s-log-kibana-4.png" alt=""></p>
+<p>选择使用上面步骤保存的 Search</p>
+<p><img src="/posts/45/k8s-log-kibana-5.png" alt=""></p>
+<p>选择指定的 bucket</p>
+<p><img src="/posts/45/k8s-log-kibana-6.png" alt=""></p>
+<p>选择 code 字段进行统计</p>
+<p><img src="/posts/45/k8s-log-kibana-7.png" alt=""></p>
+<p>保存 Visualize</p>
+<p><img src="/posts/45/k8s-log-kibana-8.png" alt=""></p>
+<p>使用如上的步骤创建多个 Visualize</p>
+<p><img src="/posts/45/k8s-log-kibana-9.png" alt=""></p>
+<h5 id="创建-Dashboard"><a href="#创建-Dashboard" class="headerlink" title="创建 Dashboard"></a>创建 Dashboard</h5><p>选择创建 Dashboard </p>
+<p><img src="/posts/45/k8s-log-kibana-10.png" alt=""></p>
+<p>把 Visualize 添加到 Dashboard</p>
+<p><img src="/posts/45/k8s-log-kibana-11.png" alt=""></p>
+<p>保存 Dashboard </p>
+<p><img src="/posts/45/k8s-log-kibana-12.png" alt=""></p>
+<p>编辑调整位置和大小</p>
+<p><img src="/posts/45/k8s-log-kibana-13.png" alt=""></p>
+<p>最终图表展示</p>
+<p><img src="/posts/45/k8s-log-kibana-14.png" alt=""></p>
+<blockquote>
+<p>如果快速体验可以在 菜单 Managerment 的 Saved Ojects 标签直接使用导入功能，导入本次实验下载目录k8s-log下的<code>k8s-kibana-all.json</code>文件</p>
+</blockquote>
+<p><img src="/posts/45/k8s-log-kibana-15.png" alt=""></p>
+<h3 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h3><ul>
+<li><a href="https://kubernetes.io/docs/concepts/cluster-administration/logging/" target="_blank" rel="noopener">https://kubernetes.io/docs/concepts/cluster-administration/logging/</a></li>
+<li><a href="https://banzaicloud.com/blog/k8s-logging/" target="_blank" rel="noopener">https://banzaicloud.com/blog/k8s-logging/</a></li>
+<li><a href="https://docs.fluentd.org/v0.12/articles/kubernetes-fluentd" target="_blank" rel="noopener">https://docs.fluentd.org/v0.12/articles/kubernetes-fluentd</a></li>
+<li><a href="https://jimmysong.io/kubernetes-handbook/practice/app-log-collection.html" target="_blank" rel="noopener">https://jimmysong.io/kubernetes-handbook/practice/app-log-collection.html</a></li>
+<li><a href="https://github.com/kubernetes/kubernetes/blob/master/cluster/addons/fluentd-elasticsearch/README.md" target="_blank" rel="noopener">https://github.com/kubernetes/kubernetes/blob/master/cluster/addons/fluentd-elasticsearch/README.md</a></li>
+<li><a href="https://www.elastic.co/blog/shipping-kubernetes-logs-to-elasticsearch-with-filebeat" target="_blank" rel="noopener">https://www.elastic.co/blog/shipping-kubernetes-logs-to-elasticsearch-with-filebeat</a></li>
+<li><a href="https://github.com/elastic/beats/blob/master/deploy/kubernetes/filebeat/README.md" target="_blank" rel="noopener">https://github.com/elastic/beats/blob/master/deploy/kubernetes/filebeat/README.md</a></li>
+<li><a href="https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-input-docker.html" target="_blank" rel="noopener">https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-input-docker.html</a></li>
+<li><a href="https://www.elastic.co/guide/en/beats/filebeat/current/add-kubernetes-metadata.html" target="_blank" rel="noopener">https://www.elastic.co/guide/en/beats/filebeat/current/add-kubernetes-metadata.html</a></li>
+<li><a href="https://github.com/fluent/fluentd-kubernetes-daemonset" target="_blank" rel="noopener">https://github.com/fluent/fluentd-kubernetes-daemonset</a></li>
+<li><a href="https://github.com/fluent/fluent-bit-kubernetes-logging" target="_blank" rel="noopener">https://github.com/fluent/fluent-bit-kubernetes-logging</a></li>
+<li><a href="https://github.com/fluent/fluent-bit" target="_blank" rel="noopener">https://github.com/fluent/fluent-bit</a></li>
+<li><a href="https://www.docker.elastic.co/" target="_blank" rel="noopener">https://www.docker.elastic.co/</a></li>
+<li><a href="https://fluentbit.io/documentation/0.13/" target="_blank" rel="noopener">https://fluentbit.io/documentation/0.13/</a></li>
+<li><a href="https://docs.fluentd.org/v1.0/articles/quickstart" target="_blank" rel="noopener">https://docs.fluentd.org/v1.0/articles/quickstart</a></li>
+<li><a href="https://www.elastic.co/guide/en/logstash/6.3/deploying-and-scaling.html" target="_blank" rel="noopener">https://www.elastic.co/guide/en/logstash/6.3/deploying-and-scaling.html</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/docker/" rel="tag"># docker</a>
+          
+            <a href="/tags/k8s/" rel="tag"># k8s</a>
+          
+            <a href="/tags/log/" rel="tag"># log</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/posts/44/" rel="next" title="k8s使用openebs实现动态持久化存储">
+                <i class="fa fa-chevron-left"></i> k8s使用openebs实现动态持久化存储
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/posts/46/" rel="prev" title="istio-1.0微服务实验">
+                istio-1.0微服务实验 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="mgxian" />
+          <p class="site-author-name" itemprop="name">mgxian</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/mgxian" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#部署"><span class="nav-number">2.</span> <span class="nav-text">部署</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#部署前的准备"><span class="nav-number">2.1.</span> <span class="nav-text">部署前的准备</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#部署elastisearch"><span class="nav-number">2.2.</span> <span class="nav-text">部署elastisearch</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#部署kibana"><span class="nav-number">2.3.</span> <span class="nav-text">部署kibana</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#部署fluentd收集日志"><span class="nav-number">2.4.</span> <span class="nav-text">部署fluentd收集日志</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#kibana查看日志"><span class="nav-number">2.5.</span> <span class="nav-text">kibana查看日志</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#应用日志收集测试"><span class="nav-number">3.</span> <span class="nav-text">应用日志收集测试</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#应用日志输出到标准输出测试"><span class="nav-number">3.1.</span> <span class="nav-text">应用日志输出到标准输出测试</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#应用日志输出到容器指定目录-filebeat收集"><span class="nav-number">3.2.</span> <span class="nav-text">应用日志输出到容器指定目录(filebeat收集)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#应用日志输出到容器指定目录-fluent-bit收集"><span class="nav-number">3.3.</span> <span class="nav-text">应用日志输出到容器指定目录(fluent-bit收集)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#应用直接发送日志到日志系统"><span class="nav-number">3.4.</span> <span class="nav-text">应用直接发送日志到日志系统</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#清理"><span class="nav-number">3.5.</span> <span class="nav-text">清理</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#日志收集系统总结"><span class="nav-number">4.</span> <span class="nav-text">日志收集系统总结</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#k8s集群日志通用收集方案"><span class="nav-number">4.1.</span> <span class="nav-text">k8s集群日志通用收集方案</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#通用日志收集系统"><span class="nav-number">4.2.</span> <span class="nav-text">通用日志收集系统</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#大流量日志收集系统"><span class="nav-number">4.3.</span> <span class="nav-text">大流量日志收集系统</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#应用日志收集实验-ELK技术栈"><span class="nav-number">4.4.</span> <span class="nav-text">应用日志收集实验(ELK技术栈)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#部署redis队列"><span class="nav-number">4.4.1.</span> <span class="nav-text">部署redis队列</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#部署indexer分析日志"><span class="nav-number">4.4.2.</span> <span class="nav-text">部署indexer分析日志</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#部署shipper集中日志"><span class="nav-number">4.4.3.</span> <span class="nav-text">部署shipper集中日志</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#部署nginx测试日志收集"><span class="nav-number">4.4.4.</span> <span class="nav-text">部署nginx测试日志收集</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#持续访问nginx生成日志"><span class="nav-number">4.4.5.</span> <span class="nav-text">持续访问nginx生成日志</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#访问kibana查看日志"><span class="nav-number">4.4.6.</span> <span class="nav-text">访问kibana查看日志</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#清理-1"><span class="nav-number">4.4.7.</span> <span class="nav-text">清理</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#应用日志收集实验-EFK技术栈"><span class="nav-number">4.5.</span> <span class="nav-text">应用日志收集实验(EFK技术栈)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#部署indexer分析日志-1"><span class="nav-number">4.5.1.</span> <span class="nav-text">部署indexer分析日志</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#部署shipper集中日志-1"><span class="nav-number">4.5.2.</span> <span class="nav-text">部署shipper集中日志</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#部署nginx测试日志收集-1"><span class="nav-number">4.5.3.</span> <span class="nav-text">部署nginx测试日志收集</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#持续访问nginx生成日志-1"><span class="nav-number">4.5.4.</span> <span class="nav-text">持续访问nginx生成日志</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#访问kibana查看日志-1"><span class="nav-number">4.5.5.</span> <span class="nav-text">访问kibana查看日志</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#清理-2"><span class="nav-number">4.5.6.</span> <span class="nav-text">清理</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#应用日志可视化"><span class="nav-number">5.</span> <span class="nav-text">应用日志可视化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#部署日志收集需要的组件"><span class="nav-number">5.1.</span> <span class="nav-text">部署日志收集需要的组件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#模拟用户访问"><span class="nav-number">5.2.</span> <span class="nav-text">模拟用户访问</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#访问kibana查看日志-2"><span class="nav-number">5.3.</span> <span class="nav-text">访问kibana查看日志</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#创建图表"><span class="nav-number">5.4.</span> <span class="nav-text">创建图表</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#创建-Search"><span class="nav-number">5.4.1.</span> <span class="nav-text">创建 Search</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#创建-Visualize"><span class="nav-number">5.4.2.</span> <span class="nav-text">创建 Visualize</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#创建-Dashboard"><span class="nav-number">5.4.3.</span> <span class="nav-text">创建 Dashboard</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考文档"><span class="nav-number">6.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">mgxian</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("iQlP5L75WVCE1k0dTxnzi15B-gzGzoHsz", "vLlwNDAYowJRpNIfirPwn8Cy");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

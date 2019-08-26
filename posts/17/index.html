@@ -1,0 +1,1264 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="docker,k8s," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="简介使用kubeadm配置多master节点，实现高可用。">
+<meta name="keywords" content="docker,k8s">
+<meta property="og:type" content="article">
+<meta property="og:title" content="centos7使用kubeadm配置高可用k8s集群">
+<meta property="og:url" content="https://mgxian.dev/posts/17/index.html">
+<meta property="og:site_name" content="mgxian&#39;s blog">
+<meta property="og:description" content="简介使用kubeadm配置多master节点，实现高可用。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-08-26T02:36:09.439Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="centos7使用kubeadm配置高可用k8s集群">
+<meta name="twitter:description" content="简介使用kubeadm配置多master节点，实现高可用。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://mgxian.dev/posts/17/"/>
+
+
+
+
+
+  <title>centos7使用kubeadm配置高可用k8s集群 | mgxian's blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">mgxian's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://mgxian.dev/posts/17/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="mgxian">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="mgxian's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">centos7使用kubeadm配置高可用k8s集群</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-03T17:37:17+08:00">
+                2018-05-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/运维/" itemprop="url" rel="index">
+                    <span itemprop="name">运维</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/posts/17/" class="leancloud_visitors" data-flag-title="centos7使用kubeadm配置高可用k8s集群">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>使用<code>kubeadm</code>配置多<code>master</code>节点，实现高可用。<br><a id="more"></a></p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><h4 id="实验环境说明"><a href="#实验环境说明" class="headerlink" title="实验环境说明"></a>实验环境说明</h4><h5 id="实验架构图"><a href="#实验架构图" class="headerlink" title="实验架构图"></a>实验架构图</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">lab1: etcd master haproxy keepalived 11.11.11.111</span><br><span class="line">lab2: etcd master haproxy keepalived 11.11.11.112</span><br><span class="line">lab3: etcd master haproxy keepalived 11.11.11.113</span><br><span class="line">lab4: node  11.11.11.114</span><br><span class="line">lab5: node  11.11.11.115</span><br><span class="line">lab6: node  11.11.11.116</span><br><span class="line"></span><br><span class="line">vip(loadblancer ip): 11.11.11.110</span><br></pre></td></tr></table></figure>
+<h5 id="实验使用的Vagrantfile"><a href="#实验使用的Vagrantfile" class="headerlink" title="实验使用的Vagrantfile"></a>实验使用的<code>Vagrantfile</code></h5><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- mode: ruby -*-</span></span><br><span class="line"><span class="comment"># vi: set ft=ruby :</span></span><br><span class="line"></span><br><span class="line">ENV[<span class="string">"LC_ALL"</span>] = <span class="string">"en_US.UTF-8"</span></span><br><span class="line"></span><br><span class="line">Vagrant.configure(<span class="string">"2"</span>) <span class="keyword">do</span> <span class="params">|config|</span></span><br><span class="line">    (<span class="number">1</span>..<span class="number">6</span>).each <span class="keyword">do</span> <span class="params">|i|</span></span><br><span class="line">      config.vm.define <span class="string">"lab<span class="subst">#&#123;i&#125;</span>"</span> <span class="keyword">do</span> <span class="params">|node|</span></span><br><span class="line">        node.vm.box = <span class="string">"centos-7.4-docker-17"</span></span><br><span class="line">        node.ssh.insert_key = <span class="literal">false</span></span><br><span class="line">        node.vm.hostname = <span class="string">"lab<span class="subst">#&#123;i&#125;</span>"</span></span><br><span class="line">        node.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"11.11.11.11<span class="subst">#&#123;i&#125;</span>"</span></span><br><span class="line">        node.vm.provision <span class="string">"shell"</span>,</span><br><span class="line">          <span class="symbol">inline:</span> <span class="string">"echo hello from node <span class="subst">#&#123;i&#125;</span>"</span></span><br><span class="line">        node.vm.provider <span class="string">"virtualbox"</span> <span class="keyword">do</span> <span class="params">|v|</span></span><br><span class="line">          v.cpus = <span class="number">2</span></span><br><span class="line">          v.customize [<span class="string">"modifyvm"</span>, <span class="symbol">:id</span>, <span class="string">"--name"</span>, <span class="string">"lab<span class="subst">#&#123;i&#125;</span>"</span>, <span class="string">"--memory"</span>, <span class="string">"2048"</span>]</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<h4 id="在所有机器上安装kubeadm"><a href="#在所有机器上安装kubeadm" class="headerlink" title="在所有机器上安装kubeadm"></a>在所有机器上安装kubeadm</h4><p>参考之前的文章《centos7安装kubeadm》</p>
+<h4 id="配置所有节点的kubelet"><a href="#配置所有节点的kubelet" class="headerlink" title="配置所有节点的kubelet"></a>配置所有节点的kubelet</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 配置kubelet使用国内可用镜像</span></span><br><span class="line"><span class="comment"># 修改/etc/systemd/system/kubelet.service.d/10-kubeadm.conf</span></span><br><span class="line"><span class="comment"># 添加如下配置 </span></span><br><span class="line">Environment=<span class="string">"KUBELET_EXTRA_ARGS=--pod-infra-container-image=registry.cn-shanghai.aliyuncs.com/gcr-k8s/pause-amd64:3.0"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用命令</span></span><br><span class="line">sed -i <span class="string">'/ExecStart=$/i Environment="KUBELET_EXTRA_ARGS=--pod-infra-container-image=registry.cn-shanghai.aliyuncs.com/gcr-k8s/pause-amd64:3.0"'</span>  /etc/systemd/system/kubelet.service.d/10-kubeadm.conf</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重新载入配置</span></span><br><span class="line">systemctl daemon-reload</span><br></pre></td></tr></table></figure>
+<h4 id="配置所有节点的hosts"><a href="#配置所有节点的hosts" class="headerlink" title="配置所有节点的hosts"></a>配置所有节点的hosts</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">cat &gt;&gt;/etc/hosts&lt;&lt;EOF</span><br><span class="line">11.11.11.111 lab1</span><br><span class="line">11.11.11.112 lab2</span><br><span class="line">11.11.11.113 lab3</span><br><span class="line">11.11.11.114 lab4</span><br><span class="line">11.11.11.115 lab5</span><br><span class="line">11.11.11.116 lab6</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+<h4 id="启动etcd集群"><a href="#启动etcd集群" class="headerlink" title="启动etcd集群"></a>启动etcd集群</h4><p>在<code>lab1,lab2,lab3</code>节点上启动<code>etcd</code>集群</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># lab1</span></span><br><span class="line">docker stop etcd &amp;&amp; docker rm etcd</span><br><span class="line">rm -rf /data/etcd</span><br><span class="line">mkdir -p /data/etcd</span><br><span class="line">docker run -d \</span><br><span class="line">--restart always \</span><br><span class="line">-v /etc/etcd/ssl/certs:/etc/ssl/certs \</span><br><span class="line">-v /data/etcd:/var/lib/etcd \</span><br><span class="line">-p 2380:2380 \</span><br><span class="line">-p 2379:2379 \</span><br><span class="line">--name etcd \</span><br><span class="line">registry.cn-hangzhou.aliyuncs.com/google_containers/etcd-amd64:3.1.12 \</span><br><span class="line">etcd --name=etcd0 \</span><br><span class="line">--advertise-client-urls=http://11.11.11.111:2379 \</span><br><span class="line">--listen-client-urls=http://0.0.0.0:2379 \</span><br><span class="line">--initial-advertise-peer-urls=http://11.11.11.111:2380 \</span><br><span class="line">--listen-peer-urls=http://0.0.0.0:2380 \</span><br><span class="line">--initial-cluster-token=9477af68bbee1b9ae037d6fd9e7efefd \</span><br><span class="line">--initial-cluster=etcd0=http://11.11.11.111:2380,etcd1=http://11.11.11.112:2380,etcd2=http://11.11.11.113:2380 \</span><br><span class="line">--initial-cluster-state=new \</span><br><span class="line">--auto-tls \</span><br><span class="line">--peer-auto-tls \</span><br><span class="line">--data-dir=/var/lib/etcd</span><br><span class="line"></span><br><span class="line"><span class="comment"># lab2</span></span><br><span class="line">docker stop etcd &amp;&amp; docker rm etcd</span><br><span class="line">rm -rf /data/etcd</span><br><span class="line">mkdir -p /data/etcd</span><br><span class="line">docker run -d \</span><br><span class="line">--restart always \</span><br><span class="line">-v /etc/etcd/ssl/certs:/etc/ssl/certs \</span><br><span class="line">-v /data/etcd:/var/lib/etcd \</span><br><span class="line">-p 2380:2380 \</span><br><span class="line">-p 2379:2379 \</span><br><span class="line">--name etcd \</span><br><span class="line">registry.cn-hangzhou.aliyuncs.com/google_containers/etcd-amd64:3.1.12 \</span><br><span class="line">etcd --name=etcd1 \</span><br><span class="line">--advertise-client-urls=http://11.11.11.112:2379 \</span><br><span class="line">--listen-client-urls=http://0.0.0.0:2379 \</span><br><span class="line">--initial-advertise-peer-urls=http://11.11.11.112:2380 \</span><br><span class="line">--listen-peer-urls=http://0.0.0.0:2380 \</span><br><span class="line">--initial-cluster-token=9477af68bbee1b9ae037d6fd9e7efefd \</span><br><span class="line">--initial-cluster=etcd0=http://11.11.11.111:2380,etcd1=http://11.11.11.112:2380,etcd2=http://11.11.11.113:2380 \</span><br><span class="line">--initial-cluster-state=new \</span><br><span class="line">--auto-tls \</span><br><span class="line">--peer-auto-tls \</span><br><span class="line">--data-dir=/var/lib/etcd</span><br><span class="line"></span><br><span class="line"><span class="comment"># lab3</span></span><br><span class="line">docker stop etcd &amp;&amp; docker rm etcd</span><br><span class="line">rm -rf /data/etcd</span><br><span class="line">mkdir -p /data/etcd</span><br><span class="line">docker run -d \</span><br><span class="line">--restart always \</span><br><span class="line">-v /etc/etcd/ssl/certs:/etc/ssl/certs \</span><br><span class="line">-v /data/etcd:/var/lib/etcd \</span><br><span class="line">-p 2380:2380 \</span><br><span class="line">-p 2379:2379 \</span><br><span class="line">--name etcd \</span><br><span class="line">registry.cn-hangzhou.aliyuncs.com/google_containers/etcd-amd64:3.1.12 \</span><br><span class="line">etcd --name=etcd2 \</span><br><span class="line">--advertise-client-urls=http://11.11.11.113:2379 \</span><br><span class="line">--listen-client-urls=http://0.0.0.0:2379 \</span><br><span class="line">--initial-advertise-peer-urls=http://11.11.11.113:2380 \</span><br><span class="line">--listen-peer-urls=http://0.0.0.0:2380 \</span><br><span class="line">--initial-cluster-token=9477af68bbee1b9ae037d6fd9e7efefd \</span><br><span class="line">--initial-cluster=etcd0=http://11.11.11.111:2380,etcd1=http://11.11.11.112:2380,etcd2=http://11.11.11.113:2380 \</span><br><span class="line">--initial-cluster-state=new \</span><br><span class="line">--auto-tls \</span><br><span class="line">--peer-auto-tls \</span><br><span class="line">--data-dir=/var/lib/etcd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 验证查看集群</span></span><br><span class="line">docker <span class="built_in">exec</span> -ti etcd ash</span><br><span class="line">etcdctl member list</span><br><span class="line">etcdctl cluster-health</span><br><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
+<h4 id="在第一台master节点初始化"><a href="#在第一台master节点初始化" class="headerlink" title="在第一台master节点初始化"></a>在第一台master节点初始化</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成token</span></span><br><span class="line"><span class="comment"># 保留token后面还要使用</span></span><br><span class="line">token=$(kubeadm token generate)</span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$token</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成配置文件</span></span><br><span class="line">cat &gt;kubeadm-master.config&lt;&lt;EOF</span><br><span class="line">apiVersion: kubeadm.k8s.io/v1alpha1</span><br><span class="line">kind: MasterConfiguration</span><br><span class="line">kubernetesVersion: v1.10.1</span><br><span class="line"><span class="comment">#imageRepository: registry.cn-shanghai.aliyuncs.com/gcr-k8s</span></span><br><span class="line">imageRepository: registry.cn-hangzhou.aliyuncs.com/google_containers</span><br><span class="line"></span><br><span class="line">api:</span><br><span class="line">  advertiseAddress: 11.11.11.111</span><br><span class="line"></span><br><span class="line">apiServerExtraArgs:</span><br><span class="line">  endpoint-reconciler-type: lease</span><br><span class="line"></span><br><span class="line">controllerManagerExtraArgs:</span><br><span class="line">  node-monitor-grace-period: 10s</span><br><span class="line">  pod-eviction-timeout: 10s</span><br><span class="line"></span><br><span class="line">networking:</span><br><span class="line">  podSubnet: 192.168.0.0/16</span><br><span class="line"></span><br><span class="line">etcd:</span><br><span class="line">  endpoints:</span><br><span class="line">  - <span class="string">"http://11.11.11.111:2379"</span></span><br><span class="line">  - <span class="string">"http://11.11.11.112:2379"</span></span><br><span class="line">  - <span class="string">"http://11.11.11.113:2379"</span></span><br><span class="line"></span><br><span class="line">apiServerCertSANs:</span><br><span class="line">- <span class="string">"lab1"</span></span><br><span class="line">- <span class="string">"lab2"</span></span><br><span class="line">- <span class="string">"lab3"</span></span><br><span class="line">- <span class="string">"11.11.11.111"</span></span><br><span class="line">- <span class="string">"11.11.11.112"</span></span><br><span class="line">- <span class="string">"11.11.11.113"</span></span><br><span class="line">- <span class="string">"11.11.11.110"</span></span><br><span class="line">- <span class="string">"127.0.0.1"</span></span><br><span class="line"></span><br><span class="line">token: <span class="variable">$token</span></span><br><span class="line">tokenTTL: <span class="string">"0"</span></span><br><span class="line"></span><br><span class="line">featureGates:</span><br><span class="line">  CoreDNS: <span class="literal">true</span></span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="comment"># 初始化</span></span><br><span class="line">kubeadm init --config kubeadm-master.config</span><br><span class="line">systemctl <span class="built_in">enable</span> kubelet</span><br><span class="line"></span><br><span class="line"><span class="comment"># 保存初始化完成之后的join命令</span></span><br><span class="line"><span class="comment"># 如果丢失可以使用命令"kubeadm token list"获取</span></span><br><span class="line"><span class="comment"># kubeadm join 11.11.11.111:6443 --token nevmjk.iuh214fc8i0k3iue --discovery-token-ca-cert-hash sha256:0e4f738348be836ff810bce754e059054845f44f01619a37b817eba83282d80f</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置kubectl使用</span></span><br><span class="line">mkdir -p <span class="variable">$HOME</span>/.kube</span><br><span class="line">sudo cp -i /etc/kubernetes/admin.conf <span class="variable">$HOME</span>/.kube/config</span><br><span class="line">sudo chown $(id -u):$(id -g) <span class="variable">$HOME</span>/.kube/config</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装网络插件</span></span><br><span class="line"><span class="comment"># 下载配置</span></span><br><span class="line">mkdir flannel &amp;&amp; <span class="built_in">cd</span> flannel</span><br><span class="line">wget https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 修改配置</span></span><br><span class="line"><span class="comment"># 此处的ip配置要与上面kubeadm的pod-network一致</span></span><br><span class="line">  net-conf.json: |</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">"Network"</span>: <span class="string">"192.168.0.0/16"</span>,</span><br><span class="line">      <span class="string">"Backend"</span>: &#123;</span><br><span class="line">        <span class="string">"Type"</span>: <span class="string">"vxlan"</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 修改镜像</span></span><br><span class="line">image: registry.cn-shanghai.aliyuncs.com/gcr-k8s/flannel:v0.10.0-amd64</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动</span></span><br><span class="line">kubectl apply -f kube-flannel.yml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果Node有多个网卡的话，参考flannel issues 39701，</span></span><br><span class="line"><span class="comment"># https://github.com/kubernetes/kubernetes/issues/39701</span></span><br><span class="line"><span class="comment"># 目前需要在kube-flannel.yml中使用--iface参数指定集群主机内网网卡的名称，</span></span><br><span class="line"><span class="comment"># 否则可能会出现dns无法解析。容器无法通信的情况，需要将kube-flannel.yml下载到本地，</span></span><br><span class="line"><span class="comment"># flanneld启动参数加上--iface=&lt;iface-name&gt;</span></span><br><span class="line">    containers:</span><br><span class="line">      - name: kube-flannel</span><br><span class="line">        image: registry.cn-shanghai.aliyuncs.com/gcr-k8s/flannel:v0.10.0-amd64</span><br><span class="line">        <span class="built_in">command</span>:</span><br><span class="line">        - /opt/bin/flanneld</span><br><span class="line">        args:</span><br><span class="line">        - --ip-masq</span><br><span class="line">        - --kube-subnet-mgr</span><br><span class="line">        - --iface=eth1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看</span></span><br><span class="line">kubectl get pods --namespace kube-system</span><br><span class="line">kubectl get svc --namespace kube-system</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置master允许部署应用pod，参与工作负载，现在可以部署其他系统组件</span></span><br><span class="line"><span class="comment"># 如 dashboard, heapster, efk等</span></span><br><span class="line">kubectl taint nodes --all node-role.kubernetes.io/master-</span><br></pre></td></tr></table></figure>
+<h4 id="启动其他master节点"><a href="#启动其他master节点" class="headerlink" title="启动其他master节点"></a>启动其他master节点</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 打包第一台master初始化之后的/etc/kubernetes/pki目录</span></span><br><span class="line"><span class="built_in">cd</span> /etc/kubernetes &amp;&amp; tar czvf /root/pki.tgz pki/ &amp;&amp; <span class="built_in">cd</span> ~</span><br><span class="line"></span><br><span class="line"><span class="comment"># 上传到其他master的/etc/kubernetes目录下</span></span><br><span class="line">tar xf pki.tgz -C /etc/kubernetes/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除pki目录下的apiserver.crt 和 apiserver.key文件</span></span><br><span class="line">rm -rf /etc/kubernetes/pki/&#123;apiserver.crt,apiserver.key&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成配置文件</span></span><br><span class="line"><span class="comment"># 使用和之前master一样的配置文件</span></span><br><span class="line"><span class="comment"># token保持一致</span></span><br><span class="line">cat &gt;kubeadm-master.config&lt;&lt;EOF</span><br><span class="line">apiVersion: kubeadm.k8s.io/v1alpha1</span><br><span class="line">kind: MasterConfiguration</span><br><span class="line">kubernetesVersion: v1.10.1</span><br><span class="line"><span class="comment">#imageRepository: registry.cn-shanghai.aliyuncs.com/gcr-k8s</span></span><br><span class="line">imageRepository: registry.cn-hangzhou.aliyuncs.com/google_containers</span><br><span class="line"></span><br><span class="line"><span class="comment"># 注意修改IP</span></span><br><span class="line">api:</span><br><span class="line">  advertiseAddress: 11.11.11.112</span><br><span class="line"></span><br><span class="line">apiServerExtraArgs:</span><br><span class="line">  endpoint-reconciler-type: lease</span><br><span class="line"></span><br><span class="line">controllerManagerExtraArgs:</span><br><span class="line">  node-monitor-grace-period: 10s</span><br><span class="line">  pod-eviction-timeout: 10s</span><br><span class="line"></span><br><span class="line">networking:</span><br><span class="line">  podSubnet: 192.168.0.0/16</span><br><span class="line"></span><br><span class="line">etcd:</span><br><span class="line">  endpoints:</span><br><span class="line">  - <span class="string">"http://11.11.11.111:2379"</span></span><br><span class="line">  - <span class="string">"http://11.11.11.112:2379"</span></span><br><span class="line">  - <span class="string">"http://11.11.11.113:2379"</span></span><br><span class="line"></span><br><span class="line">apiServerCertSANs:</span><br><span class="line">- lab1</span><br><span class="line">- lab2</span><br><span class="line">- lab3</span><br><span class="line">- <span class="string">"11.11.11.111"</span></span><br><span class="line">- <span class="string">"11.11.11.112"</span></span><br><span class="line">- <span class="string">"11.11.11.113"</span></span><br><span class="line">- <span class="string">"11.11.11.110"</span></span><br><span class="line">- <span class="string">"127.0.0.1"</span></span><br><span class="line"></span><br><span class="line">token: nevmjk.iuh214fc8i0k3iue</span><br><span class="line">tokenTTL: <span class="string">"0"</span></span><br><span class="line"></span><br><span class="line">featureGates:</span><br><span class="line">  CoreDNS: <span class="literal">true</span></span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="comment"># 初始化</span></span><br><span class="line">kubeadm init --config kubeadm-master.config</span><br><span class="line">systemctl <span class="built_in">enable</span> kubelet</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看状态</span></span><br><span class="line">kubectl get pod --all-namespaces -o wide | grep lab1</span><br><span class="line">kubectl get pod --all-namespaces -o wide | grep lab2</span><br><span class="line">kubectl get pod --all-namespaces -o wide | grep lab3</span><br><span class="line">kubectl get nodes -o wide</span><br></pre></td></tr></table></figure>
+<h4 id="配置haproxy代理和keepalived"><a href="#配置haproxy代理和keepalived" class="headerlink" title="配置haproxy代理和keepalived"></a>配置haproxy代理和keepalived</h4><p>在<code>lab1,lab2,lab3</code>节点上启动<code>haproxy</code>和<code>keepalived</code></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 拉取haproxy镜像</span></span><br><span class="line">docker pull haproxy:1.7.8-alpine</span><br><span class="line">mkdir /etc/haproxy</span><br><span class="line">cat &gt;/etc/haproxy/haproxy.cfg&lt;&lt;EOF</span><br><span class="line">global</span><br><span class="line">  <span class="built_in">log</span> 127.0.0.1 local0 err</span><br><span class="line">  maxconn 50000</span><br><span class="line">  uid 99</span><br><span class="line">  gid 99</span><br><span class="line">  <span class="comment">#daemon</span></span><br><span class="line">  nbproc 1</span><br><span class="line">  pidfile haproxy.pid</span><br><span class="line"></span><br><span class="line">defaults</span><br><span class="line">  mode http</span><br><span class="line">  <span class="built_in">log</span> 127.0.0.1 local0 err</span><br><span class="line">  maxconn 50000</span><br><span class="line">  retries 3</span><br><span class="line">  timeout connect 5s</span><br><span class="line">  timeout client 30s</span><br><span class="line">  timeout server 30s</span><br><span class="line">  timeout check 2s</span><br><span class="line"></span><br><span class="line">listen admin_stats</span><br><span class="line">  mode http</span><br><span class="line">  <span class="built_in">bind</span> 0.0.0.0:1080</span><br><span class="line">  <span class="built_in">log</span> 127.0.0.1 local0 err</span><br><span class="line">  stats refresh 30s</span><br><span class="line">  stats uri     /haproxy-status</span><br><span class="line">  stats realm   Haproxy\ Statistics</span><br><span class="line">  stats auth    will:will</span><br><span class="line">  stats hide-version</span><br><span class="line">  stats admin <span class="keyword">if</span> TRUE</span><br><span class="line"></span><br><span class="line">frontend k8s-https</span><br><span class="line">  <span class="built_in">bind</span> 0.0.0.0:8443</span><br><span class="line">  mode tcp</span><br><span class="line">  <span class="comment">#maxconn 50000</span></span><br><span class="line">  default_backend k8s-https</span><br><span class="line"></span><br><span class="line">backend k8s-https</span><br><span class="line">  mode tcp</span><br><span class="line">  balance roundrobin</span><br><span class="line">  server lab1 11.11.11.111:6443 weight 1 maxconn 1000 check inter 2000 rise 2 fall 3</span><br><span class="line">  server lab2 11.11.11.112:6443 weight 1 maxconn 1000 check inter 2000 rise 2 fall 3</span><br><span class="line">  server lab3 11.11.11.113:6443 weight 1 maxconn 1000 check inter 2000 rise 2 fall 3</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动haproxy</span></span><br><span class="line">docker run -d --name my-haproxy \</span><br><span class="line">-v /etc/haproxy:/usr/<span class="built_in">local</span>/etc/haproxy:ro \</span><br><span class="line">-p 8443:8443 \</span><br><span class="line">-p 1080:1080 \</span><br><span class="line">--restart always \</span><br><span class="line">haproxy:1.7.8-alpine</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看日志</span></span><br><span class="line">docker logs my-haproxy</span><br><span class="line"></span><br><span class="line"><span class="comment"># 浏览器查看状态</span></span><br><span class="line">http://11.11.11.111:1080/haproxy-status</span><br><span class="line">http://11.11.11.112:1080/haproxy-status</span><br><span class="line"></span><br><span class="line"><span class="comment"># 拉取keepalived镜像</span></span><br><span class="line">docker pull osixia/keepalived:1.4.4</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动</span></span><br><span class="line"><span class="comment"># 载入内核相关模块</span></span><br><span class="line">lsmod | grep ip_vs</span><br><span class="line">modprobe ip_vs</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动keepalived</span></span><br><span class="line"><span class="comment"># eth1为本次实验11.11.11.0/24网段的所在网卡</span></span><br><span class="line">docker run --net=host --<span class="built_in">cap</span>-add=NET_ADMIN \</span><br><span class="line">-e KEEPALIVED_INTERFACE=eth1 \</span><br><span class="line">-e KEEPALIVED_VIRTUAL_IPS=<span class="string">"#PYTHON2BASH:['11.11.11.110']"</span> \</span><br><span class="line">-e KEEPALIVED_UNICAST_PEERS=<span class="string">"#PYTHON2BASH:['11.11.11.111','11.11.11.112','11.11.11.113']"</span> \</span><br><span class="line">-e KEEPALIVED_PASSWORD=hello \</span><br><span class="line">--name k8s-keepalived \</span><br><span class="line">--restart always \</span><br><span class="line">-d osixia/keepalived:1.4.4</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看日志</span></span><br><span class="line"><span class="comment"># 会看到两个成为backup 一个成为master</span></span><br><span class="line">docker logs k8s-keepalived</span><br><span class="line"></span><br><span class="line"><span class="comment"># 此时会配置 11.11.11.110 到其中一台机器</span></span><br><span class="line"><span class="comment"># ping测试</span></span><br><span class="line">ping -c4 11.11.11.110</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果失败后清理后，重新实验</span></span><br><span class="line">docker rm -f k8s-keepalived</span><br><span class="line">ip a del 11.11.11.110/32 dev eth1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 修改~/.kube/config文件里ip和端口，然后使用kubectl测试</span></span><br><span class="line">rm -rf .kube/cache .kube/http-cache</span><br><span class="line">kubectl get pods -n kube-system -o wide</span><br></pre></td></tr></table></figure>
+<h4 id="修改master节点相关组件配置指向vip"><a href="#修改master节点相关组件配置指向vip" class="headerlink" title="修改master节点相关组件配置指向vip"></a>修改master节点相关组件配置指向vip</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># lab1 lab2 lab3</span></span><br><span class="line">sed -i <span class="string">'s@server: https://11.11.11.*:6443@server: https://11.11.11.110:8443@g'</span> /etc/kubernetes/&#123;admin.conf,kubelet.conf,scheduler.conf,controller-manager.conf&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启kubelet</span></span><br><span class="line">systemctl daemon-reload</span><br><span class="line">systemctl restart kubelet docker</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看所有节点状态</span></span><br><span class="line">kubectl get nodes -o wide</span><br></pre></td></tr></table></figure>
+<h4 id="修改kube-proxy的配置"><a href="#修改kube-proxy的配置" class="headerlink" title="修改kube-proxy的配置"></a>修改kube-proxy的配置</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 修改kube-proxy的配置指定vip</span></span><br><span class="line"><span class="comment"># 执行命令之后修改为 server: https://11.11.11.110:8443</span></span><br><span class="line">kubectl edit -n kube-system configmap/kube-proxy</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看设置</span></span><br><span class="line">kubectl get -n kube-system configmap/kube-proxy -o yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除重建kube-proxy</span></span><br><span class="line">kubectl get pods --all-namespaces -o wide | grep proxy</span><br><span class="line">all_proxy_pods=$(kubectl get pods --all-namespaces -o wide | grep proxy | awk <span class="string">'&#123;print $2&#125;'</span> | xargs)</span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$all_proxy_pods</span></span><br><span class="line">kubectl delete pods <span class="variable">$all_proxy_pods</span> -n kube-system</span><br><span class="line">kubectl get pods --all-namespaces -o wide | grep proxy</span><br></pre></td></tr></table></figure>
+<h4 id="启动node节点"><a href="#启动node节点" class="headerlink" title="启动node节点"></a>启动node节点</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 加入master节点</span></span><br><span class="line"><span class="comment"># 这个命令是之前初始化master完成时，输出的命令</span></span><br><span class="line">kubeadm join 11.11.11.110:8443 --token nevmjk.iuh214fc8i0k3iue --discovery-token-ca-cert-hash sha256:0e4f738348be836ff810bce754e059054845f44f01619a37b817eba83282d80f</span><br><span class="line">systemctl <span class="built_in">enable</span> kubelet</span><br></pre></td></tr></table></figure>
+<h4 id="修改node节点kubelet配置并重启"><a href="#修改node节点kubelet配置并重启" class="headerlink" title="修改node节点kubelet配置并重启"></a>修改node节点kubelet配置并重启</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 修改配置</span></span><br><span class="line">sed -i <span class="string">'s@server: https://11.11.11.*:6443@server: https://11.11.11.110:8443@g'</span> /etc/kubernetes/kubelet.conf</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启kubelet</span></span><br><span class="line">systemctl daemon-reload</span><br><span class="line">systemctl restart kubelet docker</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看所有节点状态</span></span><br><span class="line">kubectl get nodes -o wide</span><br></pre></td></tr></table></figure>
+<p><strong>禁止master节点发布应用</strong></p>
+<blockquote>
+<p>设置master不接受负载<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看状态</span></span><br><span class="line">kubectl get nodes</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置</span></span><br><span class="line"><span class="comment"># kubectl patch node lab1 -p '&#123;"spec":&#123;"unschedulable":true&#125;&#125;'</span></span><br><span class="line">kubectl taint nodes lab1 lab2 lab3 node-role.kubernetes.io/master=<span class="literal">true</span>:NoSchedule</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看状态</span></span><br><span class="line">kubectl get nodes</span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><h4 id="重建多个coredns副本"><a href="#重建多个coredns副本" class="headerlink" title="重建多个coredns副本"></a>重建多个coredns副本</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 删除coredns的pods</span></span><br><span class="line">kubectl get pods -n kube-system -o wide | grep coredns</span><br><span class="line">all_coredns_pods=$(kubectl get pods -n kube-system -o wide | grep coredns | awk <span class="string">'&#123;print $1&#125;'</span> | xargs)</span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$all_coredns_pods</span></span><br><span class="line">kubectl delete pods <span class="variable">$all_coredns_pods</span> -n kube-system</span><br><span class="line"></span><br><span class="line"><span class="comment"># 修改副本数</span></span><br><span class="line"><span class="comment"># replicas: 3</span></span><br><span class="line"><span class="comment"># 可以修改为node节点的个数</span></span><br><span class="line">kubectl edit deploy coredns -n kube-system</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看状态</span></span><br><span class="line">kubectl get pods -n kube-system -o wide | grep coredns</span><br></pre></td></tr></table></figure>
+<h4 id="基础测试"><a href="#基础测试" class="headerlink" title="基础测试"></a>基础测试</h4><p><strong>1. 启动</strong><br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 直接使用命令测试</span></span><br><span class="line">kubectl run nginx --replicas=2 --image=nginx:alpine --port=80</span><br><span class="line">kubectl expose deployment nginx --<span class="built_in">type</span>=NodePort --name=example-service-nodeport</span><br><span class="line">kubectl expose deployment nginx --name=example-service</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用配置文件测试</span></span><br><span class="line">cat &gt;example-nginx.yml&lt;&lt;EOF</span><br><span class="line">apiVersion: extensions/v1beta1</span><br><span class="line">kind: Deployment</span><br><span class="line">metadata:</span><br><span class="line">  name: nginx</span><br><span class="line">spec:</span><br><span class="line">  replicas: 2</span><br><span class="line">  template:</span><br><span class="line">    metadata:</span><br><span class="line">      labels:</span><br><span class="line">        app: nginx</span><br><span class="line">    spec:</span><br><span class="line">      restartPolicy: Always</span><br><span class="line">      containers:</span><br><span class="line">      - name: nginx</span><br><span class="line">        image: nginx:alpine</span><br><span class="line">        ports:</span><br><span class="line">        - containerPort: 80</span><br><span class="line">        livenessProbe:</span><br><span class="line">          httpGet:</span><br><span class="line">            path: /</span><br><span class="line">            port: 80</span><br><span class="line">          initialDelaySeconds: 10</span><br><span class="line">          periodSeconds: 3</span><br><span class="line">        readinessProbe:</span><br><span class="line">          httpGet:</span><br><span class="line">            path: /</span><br><span class="line">            port: 80</span><br><span class="line">          initialDelaySeconds: 10</span><br><span class="line">          periodSeconds: 3</span><br><span class="line">---</span><br><span class="line">kind: Service</span><br><span class="line">apiVersion: v1</span><br><span class="line">metadata:</span><br><span class="line">  name: example-service</span><br><span class="line">spec:</span><br><span class="line">    selector:</span><br><span class="line">      app: nginx</span><br><span class="line">    ports:</span><br><span class="line">      - name: http</span><br><span class="line">        port: 80</span><br><span class="line">        targetPort: 80</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line">kind: Service</span><br><span class="line">apiVersion: v1</span><br><span class="line">metadata:</span><br><span class="line">  name: example-service-nodeport</span><br><span class="line">spec:</span><br><span class="line">    selector:</span><br><span class="line">      app: nginx</span><br><span class="line">    <span class="built_in">type</span>: NodePort</span><br><span class="line">    ports:</span><br><span class="line">      - name: http-nodeport</span><br><span class="line">        port: 80</span><br><span class="line">        nodePort: 32223</span><br><span class="line">EOF</span><br><span class="line">kubectl apply -f example-nginx.yml</span><br></pre></td></tr></table></figure></p>
+<p><strong>2. 查看状态</strong><br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">kubectl get deploy</span><br><span class="line">kubectl get pods</span><br><span class="line">kubectl get svc</span><br><span class="line">kubectl describe svc example-service</span><br></pre></td></tr></table></figure></p>
+<p><strong>3. DNS解析</strong><br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">kubectl run curl --image=radial/busyboxplus:curl -i --tty</span><br><span class="line">nslookup kubernetes</span><br><span class="line">nslookup example-service</span><br><span class="line">curl example-service</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果时间过长会返回错误，可以使用如下方式再进入测试</span></span><br><span class="line">curlPod=$(kubectl get pod | grep curl | awk <span class="string">'&#123;print $1&#125;'</span>)</span><br><span class="line">kubectl <span class="built_in">exec</span> -ti <span class="variable">$curlPod</span> -- sh</span><br></pre></td></tr></table></figure></p>
+<p><strong>4. 访问测试</strong><br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 10.96.59.56 为查看svc时获取到的clusterip</span></span><br><span class="line">curl <span class="string">"10.96.59.56:80"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 32223 为查看svc时获取到的 nodeport</span></span><br><span class="line">http://11.11.11.114:32223/</span><br><span class="line">http://11.11.11.115:32223/</span><br></pre></td></tr></table></figure></p>
+<p><strong>3. 清理删除</strong><br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kubectl delete svc example-service example-service-nodeport</span><br><span class="line">kubectl delete deploy nginx curl</span><br></pre></td></tr></table></figure></p>
+<h4 id="高可用测试"><a href="#高可用测试" class="headerlink" title="高可用测试"></a>高可用测试</h4><p>关闭<code>master</code>节点测试集群是能否正常执行上一步的<code>基础测试</code>，查看相关信息，不能同时关闭<code>lab1</code>和<code>lab2</code>，因为上面有<code>haproxy</code>和<code>keepalived</code>服务</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">kubectl get pod --all-namespaces -o wide</span><br><span class="line">kubectl get pod --all-namespaces -o wide | grep lab1</span><br><span class="line">kubectl get pod --all-namespaces -o wide | grep lab2</span><br><span class="line">kubectl get pod --all-namespaces -o wide | grep lab3</span><br><span class="line">kubectl get nodes -o wide</span><br><span class="line">kubectl get deploy</span><br><span class="line">kubectl get pods</span><br><span class="line">kubectl get svc</span><br><span class="line">kubectl describe svc example-service</span><br></pre></td></tr></table></figure>
+<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h3><ul>
+<li><p>当直接把<code>node</code>节点关闭时，只有过了<code>5分钟</code>之后，上面的pod才会被检测到有问题，并迁移到其他节点</p>
+<blockquote>
+<p>如果想快速迁移可以执行 <code>kubectl delete node</code></p>
+<p>也可以修改<code>controller-manager的</code>的<code>pod-eviction-timeout</code>参数，默认5m</p>
+<p><code>node-monitor-grace-period</code>参数，默认40s</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h3><ul>
+<li><a href="https://kubernetes.io/docs/admin/high-availability/" target="_blank" rel="noopener">https://kubernetes.io/docs/admin/high-availability/</a></li>
+<li><a href="https://www.kubernetes.org.cn/3536.html" target="_blank" rel="noopener">https://www.kubernetes.org.cn/3536.html</a></li>
+<li><a href="https://github.com/indiketa/kubeadm-ha" target="_blank" rel="noopener">https://github.com/indiketa/kubeadm-ha</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/34740013" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/34740013</a></li>
+<li><a href="https://github.com/cookeem/kubeadm-ha/blob/master/README_CN.md" target="_blank" rel="noopener">https://github.com/cookeem/kubeadm-ha/blob/master/README_CN.md</a></li>
+<li><a href="https://blog.frognew.com/2017/04/install-etcd-cluster.html" target="_blank" rel="noopener">https://blog.frognew.com/2017/04/install-etcd-cluster.html</a></li>
+<li><a href="https://blog.frognew.com/2017/04/install-ha-kubernetes-1.6-cluster.html" target="_blank" rel="noopener">https://blog.frognew.com/2017/04/install-ha-kubernetes-1.6-cluster.html</a></li>
+<li><a href="https://medium.com/@bambash/ha-kubernetes-cluster-via-kubeadm-b2133360b198" target="_blank" rel="noopener">https://medium.com/@bambash/ha-kubernetes-cluster-via-kubeadm-b2133360b198</a></li>
+<li><a href="https://github.com/kubernetes/kubeadm/issues/546" target="_blank" rel="noopener">https://github.com/kubernetes/kubeadm/issues/546</a></li>
+<li><a href="https://kubernetes.io/docs/reference/setup-tools/kubeadm/kubeadm-init/#config-file" target="_blank" rel="noopener">https://kubernetes.io/docs/reference/setup-tools/kubeadm/kubeadm-init/#config-file</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/docker/" rel="tag"># docker</a>
+          
+            <a href="/tags/k8s/" rel="tag"># k8s</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/posts/16/" rel="next" title="centos7使用kubeadm安装k8s集群">
+                <i class="fa fa-chevron-left"></i> centos7使用kubeadm安装k8s集群
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/posts/18/" rel="prev" title="k8s与各网络插件集成">
+                k8s与各网络插件集成 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="mgxian" />
+          <p class="site-author-name" itemprop="name">mgxian</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/mgxian" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#安装"><span class="nav-number">2.</span> <span class="nav-text">安装</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#实验环境说明"><span class="nav-number">2.1.</span> <span class="nav-text">实验环境说明</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#实验架构图"><span class="nav-number">2.1.1.</span> <span class="nav-text">实验架构图</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#实验使用的Vagrantfile"><span class="nav-number">2.1.2.</span> <span class="nav-text">实验使用的Vagrantfile</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#在所有机器上安装kubeadm"><span class="nav-number">2.2.</span> <span class="nav-text">在所有机器上安装kubeadm</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置所有节点的kubelet"><span class="nav-number">2.3.</span> <span class="nav-text">配置所有节点的kubelet</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置所有节点的hosts"><span class="nav-number">2.4.</span> <span class="nav-text">配置所有节点的hosts</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#启动etcd集群"><span class="nav-number">2.5.</span> <span class="nav-text">启动etcd集群</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#在第一台master节点初始化"><span class="nav-number">2.6.</span> <span class="nav-text">在第一台master节点初始化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#启动其他master节点"><span class="nav-number">2.7.</span> <span class="nav-text">启动其他master节点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置haproxy代理和keepalived"><span class="nav-number">2.8.</span> <span class="nav-text">配置haproxy代理和keepalived</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#修改master节点相关组件配置指向vip"><span class="nav-number">2.9.</span> <span class="nav-text">修改master节点相关组件配置指向vip</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#修改kube-proxy的配置"><span class="nav-number">2.10.</span> <span class="nav-text">修改kube-proxy的配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#启动node节点"><span class="nav-number">2.11.</span> <span class="nav-text">启动node节点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#修改node节点kubelet配置并重启"><span class="nav-number">2.12.</span> <span class="nav-text">修改node节点kubelet配置并重启</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#测试"><span class="nav-number">3.</span> <span class="nav-text">测试</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#重建多个coredns副本"><span class="nav-number">3.1.</span> <span class="nav-text">重建多个coredns副本</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#基础测试"><span class="nav-number">3.2.</span> <span class="nav-text">基础测试</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#高可用测试"><span class="nav-number">3.3.</span> <span class="nav-text">高可用测试</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注意事项"><span class="nav-number">4.</span> <span class="nav-text">注意事项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考文档"><span class="nav-number">5.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">mgxian</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("iQlP5L75WVCE1k0dTxnzi15B-gzGzoHsz", "vLlwNDAYowJRpNIfirPwn8Cy");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

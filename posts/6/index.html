@@ -1,0 +1,1263 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="golang,Web开发,Echo," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="简介Echo是一个高性能，灵活可扩展，极简的 go web 框架。支持多种格式的响应如：json、xml、html等。中间件众多，常用组件都能找到如：HTTPS、HTTP/2、WebSocket、JWT、Gzip、CORS、CSRF。天然支持RESTful API 开发，使用其做API开发异常的方便，同时支持使用模板，方便MVC模式的开发。 安装 Echo 如果没有翻墙，先配置如下的hosts">
+<meta name="keywords" content="golang,Web开发,Echo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Golang Web 框架 Echo 简单使用教程">
+<meta property="og:url" content="https://mgxian.dev/posts/6/index.html">
+<meta property="og:site_name" content="mgxian&#39;s blog">
+<meta property="og:description" content="简介Echo是一个高性能，灵活可扩展，极简的 go web 框架。支持多种格式的响应如：json、xml、html等。中间件众多，常用组件都能找到如：HTTPS、HTTP/2、WebSocket、JWT、Gzip、CORS、CSRF。天然支持RESTful API 开发，使用其做API开发异常的方便，同时支持使用模板，方便MVC模式的开发。 安装 Echo 如果没有翻墙，先配置如下的hosts">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-08-26T02:36:09.438Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Golang Web 框架 Echo 简单使用教程">
+<meta name="twitter:description" content="简介Echo是一个高性能，灵活可扩展，极简的 go web 框架。支持多种格式的响应如：json、xml、html等。中间件众多，常用组件都能找到如：HTTPS、HTTP/2、WebSocket、JWT、Gzip、CORS、CSRF。天然支持RESTful API 开发，使用其做API开发异常的方便，同时支持使用模板，方便MVC模式的开发。 安装 Echo 如果没有翻墙，先配置如下的hosts">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://mgxian.dev/posts/6/"/>
+
+
+
+
+
+  <title>Golang Web 框架 Echo 简单使用教程 | mgxian's blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">mgxian's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://mgxian.dev/posts/6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="mgxian">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="mgxian's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">Golang Web 框架 Echo 简单使用教程</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-06-21T10:53:00+08:00">
+                2017-06-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Web开发/" itemprop="url" rel="index">
+                    <span itemprop="name">Web开发</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Web开发/golang/" itemprop="url" rel="index">
+                    <span itemprop="name">golang</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/posts/6/" class="leancloud_visitors" data-flag-title="Golang Web 框架 Echo 简单使用教程">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>Echo是一个高性能，灵活可扩展，极简的 go web 框架。支持多种格式的响应如：json、xml、html等。<br>中间件众多，常用组件都能找到如：HTTPS、HTTP/2、WebSocket、JWT、Gzip、CORS、CSRF。天然支持<br>RESTful API 开发，使用其做API开发异常的方便，同时支持使用模板，方便MVC模式的开发。</p>
+<h3 id="安装-Echo"><a href="#安装-Echo" class="headerlink" title="安装 Echo"></a>安装 Echo</h3><blockquote>
+<p>如果没有翻墙，先配置如下的hosts<br>    <code>216.58.200.33 go.googlesource.com golang.org www.golang.org</code></p>
+</blockquote>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">go get github.com/labstack/<span class="built_in">echo</span></span><br><span class="line">go get github.com/labstack/<span class="built_in">echo</span>/middleware</span><br></pre></td></tr></table></figure>
+<h3 id="Hello-World-测试"><a href="#Hello-World-测试" class="headerlink" title="Hello World 测试"></a>Hello World 测试</h3><p>写入如下内容到<code>hello.go</code><br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"net/http"</span></span><br><span class="line"></span><br><span class="line">	<span class="string">"github.com/labstack/echo"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	e := echo.New()</span><br><span class="line">	e.GET(<span class="string">"/"</span>, <span class="function"><span class="keyword">func</span><span class="params">(c echo.Context)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">		<span class="keyword">return</span> c.String(http.StatusOK, <span class="string">"Hello, World!"</span>)</span><br><span class="line">	&#125;)</span><br><span class="line">	e.Logger.Fatal(e.Start(<span class="string">":1323"</span>))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<a id="more"></a>
+<p>运行<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go run hello.go</span><br></pre></td></tr></table></figure></p>
+<p>访问<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -s http://127.0.0.1:1323/</span><br></pre></td></tr></table></figure></p>
+<h3 id="JSON-格式输出响应内容"><a href="#JSON-格式输出响应内容" class="headerlink" title="JSON 格式输出响应内容"></a>JSON 格式输出响应内容</h3><p>写入如下内容到<code>json.go</code><br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"net/http"</span></span><br><span class="line"></span><br><span class="line">	<span class="string">"github.com/labstack/echo"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> User <span class="keyword">struct</span> &#123;</span><br><span class="line">	Name  <span class="keyword">string</span> <span class="string">`json:"name" xml:"name" form:"name" query:"name"`</span></span><br><span class="line">	Email <span class="keyword">string</span> <span class="string">`json:"email" xml:"email" form:"email" query:"email"`</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	e := echo.New()</span><br><span class="line">	e.GET(<span class="string">"/"</span>, <span class="function"><span class="keyword">func</span><span class="params">(c echo.Context)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">		u := <span class="built_in">new</span>(User)</span><br><span class="line">		u.Name = <span class="string">"will"</span></span><br><span class="line">		u.Email = <span class="string">"will@will.com"</span></span><br><span class="line">		<span class="keyword">return</span> c.JSON(http.StatusOK, u)</span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	e.Logger.Fatal(e.Start(<span class="string">":1323"</span>))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>运行<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go run json.go</span><br></pre></td></tr></table></figure></p>
+<p>访问<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -s http://127.0.0.1:1323/</span><br></pre></td></tr></table></figure></p>
+<p>更多输出内容格式（xml、json、file、html、string、attachment、redirect等）参考如下官方文档<br><a href="https://echo.labstack.com/guide/response" target="_blank" rel="noopener">https://echo.labstack.com/guide/response</a></p>
+<h3 id="路由"><a href="#路由" class="headerlink" title="路由"></a>路由</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 路由</span></span><br><span class="line">e.POST(<span class="string">"/users"</span>, saveUser)</span><br><span class="line">e.GET(<span class="string">"/users/:id"</span>, getUser)</span><br><span class="line">e.PUT(<span class="string">"/users/:id"</span>, updateUser)</span><br><span class="line">e.DELETE(<span class="string">"/users/:id"</span>, deleteUser)</span><br><span class="line"></span><br><span class="line"><span class="comment">// URI参数</span></span><br><span class="line"><span class="comment">// e.GET("/users/:id", getUser)</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">getUser</span><span class="params">(c echo.Context)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">  	<span class="comment">// User ID from path `users/:id`</span></span><br><span class="line">  	id := c.Param(<span class="string">"id"</span>)</span><br><span class="line">	<span class="keyword">return</span> c.String(http.StatusOK, id)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="URI查询参数"><a href="#URI查询参数" class="headerlink" title="URI查询参数"></a>URI查询参数</h3><p><code>/show?team=x-men&amp;member=wolverine</code><br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//e.GET("/show", show)</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">show</span><span class="params">(c echo.Context)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	<span class="comment">// Get team and member from the query string</span></span><br><span class="line">	team := c.QueryParam(<span class="string">"team"</span>)</span><br><span class="line">	member := c.QueryParam(<span class="string">"member"</span>)</span><br><span class="line">	<span class="keyword">return</span> c.String(http.StatusOK, <span class="string">"team:"</span> + team + <span class="string">", member:"</span> + member)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="从FORM接受参数"><a href="#从FORM接受参数" class="headerlink" title="从FORM接受参数"></a>从FORM接受参数</h3><p><code>POST /save</code><br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// e.POST("/save", save)</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">save</span><span class="params">(c echo.Context)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	<span class="comment">// Get name and email</span></span><br><span class="line">	name := c.FormValue(<span class="string">"name"</span>)</span><br><span class="line">	email := c.FormValue(<span class="string">"email"</span>)</span><br><span class="line">	avatar, err := c.FormFile(<span class="string">"avatar"</span>)</span><br><span class="line">	<span class="keyword">return</span> c.String(http.StatusOK, <span class="string">"name:"</span> + name + <span class="string">", email:"</span> + email)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="REST-API-示例"><a href="#REST-API-示例" class="headerlink" title="REST API 示例"></a>REST API 示例</h3><p>写入如下内容到<code>rest.go</code><br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"net/http"</span></span><br><span class="line"></span><br><span class="line">	<span class="string">"github.com/labstack/echo"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> User <span class="keyword">struct</span> &#123;</span><br><span class="line">	Id    <span class="keyword">string</span> <span class="string">`json:"id" form:"id"`</span></span><br><span class="line">	Name  <span class="keyword">string</span> <span class="string">`json:"name" form:"name"`</span></span><br><span class="line">	Email <span class="keyword">string</span> <span class="string">`json:"email" form:"email"`</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">saveUser</span><span class="params">(c echo.Context)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	u := <span class="built_in">new</span>(User)</span><br><span class="line">	u.Name = c.FormValue(<span class="string">"name"</span>)</span><br><span class="line">	u.Email = c.FormValue(<span class="string">"email"</span>)</span><br><span class="line">	u.Id = <span class="string">"1"</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> c.JSON(http.StatusCreated, u)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">getUser</span><span class="params">(c echo.Context)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	u := <span class="built_in">new</span>(User)</span><br><span class="line">	id := c.Param(<span class="string">"id"</span>)</span><br><span class="line">	u.Name = <span class="string">"will"</span></span><br><span class="line">	u.Email = <span class="string">"will@will.com"</span></span><br><span class="line">	u.Id = id</span><br><span class="line">	<span class="keyword">return</span> c.JSON(http.StatusOK, u)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">updateUser</span><span class="params">(c echo.Context)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	u := <span class="built_in">new</span>(User)</span><br><span class="line">	id := c.Param(<span class="string">"id"</span>)</span><br><span class="line">	u.Name = <span class="string">"will"</span></span><br><span class="line">	u.Email = <span class="string">"will@will.com"</span></span><br><span class="line">	u.Id = id</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> c.JSON(http.StatusOK, u)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">deleteUser</span><span class="params">(c echo.Context)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	u := <span class="built_in">new</span>(User)</span><br><span class="line">	id := c.Param(<span class="string">"id"</span>)</span><br><span class="line">	<span class="built_in">println</span>(u)</span><br><span class="line">	<span class="built_in">println</span>(id)</span><br><span class="line">	<span class="keyword">return</span> c.NoContent(http.StatusNoContent)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	e := echo.New()</span><br><span class="line">	e.POST(<span class="string">"/users"</span>, saveUser)</span><br><span class="line">	e.GET(<span class="string">"/users/:id"</span>, getUser)</span><br><span class="line">	e.PUT(<span class="string">"/users/:id"</span>, updateUser)</span><br><span class="line">	e.DELETE(<span class="string">"/users/:id"</span>, deleteUser)</span><br><span class="line">	e.Logger.Fatal(e.Start(<span class="string">":1323"</span>))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>运行<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go run rest.go</span><br></pre></td></tr></table></figure></p>
+<p>测试访问<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># GET</span></span><br><span class="line">curl -s -i http://127.0.0.1:1323/users/1</span><br><span class="line"></span><br><span class="line"><span class="comment"># POST</span></span><br><span class="line">curl -s -i -F <span class="string">"name=Joe"</span> -F <span class="string">"email=joe@labstack.com"</span> http://127.0.0.1:1323/users</span><br><span class="line"></span><br><span class="line"><span class="comment"># PUT</span></span><br><span class="line"> curl -s -i -X PUT -F <span class="string">"name=Joe"</span> -F <span class="string">"email=joe@labstack.com"</span> http://127.0.0.1:1323/users/1</span><br><span class="line"></span><br><span class="line"><span class="comment"># DELETE</span></span><br><span class="line"> curl -s -i -X DELETE  http://127.0.0.1:1323/users/1</span><br></pre></td></tr></table></figure></p>
+<p>官方参考文档<br><a href="https://echo.labstack.com/cookbook/crud" target="_blank" rel="noopener">https://echo.labstack.com/cookbook/crud</a></p>
+<h3 id="使用中间件"><a href="#使用中间件" class="headerlink" title="使用中间件"></a>使用中间件</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 导入中间件模块</span></span><br><span class="line"><span class="keyword">import</span> <span class="string">"github.com/labstack/echo/middleware"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 全局中间件</span></span><br><span class="line">e.Use(middleware.Logger())</span><br><span class="line">e.Use(middleware.Recover())</span><br><span class="line"></span><br><span class="line"><span class="comment">// 组级中间件（只对以/admin开头的URI使用设置的中间件）</span></span><br><span class="line">g := e.Group(<span class="string">"/admin"</span>)</span><br><span class="line">g.Use(middleware.BasicAuth(<span class="function"><span class="keyword">func</span><span class="params">(username, password <span class="keyword">string</span>, c echo.Context)</span> <span class="params">(error, <span class="keyword">bool</span>)</span></span> &#123;</span><br><span class="line">  <span class="keyword">if</span> username == <span class="string">"joe"</span> &amp;&amp; password == <span class="string">"secret"</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span>, <span class="literal">true</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">nil</span>, <span class="literal">false</span></span><br><span class="line">&#125;))</span><br><span class="line"></span><br><span class="line"><span class="comment">// 路由级中间件（只对单个URI使用设置的中间件）</span></span><br><span class="line">track := <span class="function"><span class="keyword">func</span><span class="params">(next echo.HandlerFunc)</span> <span class="title">echo</span>.<span class="title">HandlerFunc</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="function"><span class="keyword">func</span><span class="params">(c echo.Context)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">		<span class="built_in">println</span>(<span class="string">"request to /users"</span>)</span><br><span class="line">		<span class="keyword">return</span> next(c)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">e.GET(<span class="string">"/users"</span>, <span class="function"><span class="keyword">func</span><span class="params">(c echo.Context)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> c.String(http.StatusOK, <span class="string">"/users"</span>)</span><br><span class="line">&#125;, track)</span><br></pre></td></tr></table></figure>
+<h3 id="静态文件"><a href="#静态文件" class="headerlink" title="静态文件"></a>静态文件</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 访问URI：/static/js/main.js 会寻找文件 assets/js/main.js</span></span><br><span class="line">e := echo.New()</span><br><span class="line">e.Static(<span class="string">"/static"</span>, <span class="string">"assets"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 访问URI：/js/main.js 会寻找文件 assets/js/main.js</span></span><br><span class="line">e := echo.New()</span><br><span class="line">e.Static(<span class="string">"/"</span>, <span class="string">"assets"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// / ---&gt; public/index.html</span></span><br><span class="line">e.File(<span class="string">"/"</span>, <span class="string">"public/index.html"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// /favicon.ico ---&gt; images/favicon.ico</span></span><br><span class="line">e.File(<span class="string">"/favicon.ico"</span>, <span class="string">"images/favicon.ico"</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="使用模板"><a href="#使用模板" class="headerlink" title="使用模板"></a>使用模板</h3><p>创建模板文件夹<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir -pv public/views</span><br></pre></td></tr></table></figure></p>
+<p>添加模板文件<code>public/views/hello.html</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;define &quot;hello&quot;&#125;&#125;Hello, &#123;&#123;.&#125;&#125;!&#123;&#123;end&#125;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>写入如下内容到<code>template.go</code><br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"html/template"</span></span><br><span class="line">	<span class="string">"io"</span></span><br><span class="line">	<span class="string">"net/http"</span></span><br><span class="line"></span><br><span class="line">	<span class="string">"github.com/labstack/echo"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Template <span class="keyword">struct</span> &#123;</span><br><span class="line">	templates *template.Template</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 实现 echo.Renderer 接口</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *Template)</span> <span class="title">Render</span><span class="params">(w io.Writer, name <span class="keyword">string</span>, data <span class="keyword">interface</span>&#123;&#125;, c echo.Context)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> t.templates.ExecuteTemplate(w, name, data)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Hello</span><span class="params">(c echo.Context)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> c.Render(http.StatusOK, <span class="string">"hello"</span>, <span class="string">"Will"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	t := &amp;Template&#123;</span><br><span class="line">		templates: template.Must(template.ParseGlob(<span class="string">"public/views/*.html"</span>)),</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	e := echo.New()</span><br><span class="line">	e.Renderer = t</span><br><span class="line">	e.GET(<span class="string">"/hello"</span>, Hello)</span><br><span class="line">	e.Logger.Fatal(e.Start(<span class="string">":1323"</span>))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="使用测试组件"><a href="#使用测试组件" class="headerlink" title="使用测试组件"></a>使用测试组件</h3><p>写入如下内容到<code>handler.go</code><br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> handler</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"net/http"</span></span><br><span class="line"></span><br><span class="line">	<span class="string">"github.com/labstack/echo"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> (</span><br><span class="line">	User <span class="keyword">struct</span> &#123;</span><br><span class="line">		Name  <span class="keyword">string</span> <span class="string">`json:"name" form:"name"`</span></span><br><span class="line">		Email <span class="keyword">string</span> <span class="string">`json:"email" form:"email"`</span></span><br><span class="line">	&#125;</span><br><span class="line">	handler <span class="keyword">struct</span> &#123;</span><br><span class="line">		db <span class="keyword">map</span>[<span class="keyword">string</span>]*User</span><br><span class="line">	&#125;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h *handler)</span> <span class="title">createUser</span><span class="params">(c echo.Context)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	u := <span class="built_in">new</span>(User)</span><br><span class="line">	<span class="keyword">if</span> err := c.Bind(u); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> c.JSON(http.StatusCreated, u)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h *handler)</span> <span class="title">getUser</span><span class="params">(c echo.Context)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	email := c.Param(<span class="string">"email"</span>)</span><br><span class="line">	user := h.db[email]</span><br><span class="line">	<span class="keyword">if</span> user == <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> echo.NewHTTPError(http.StatusNotFound, <span class="string">"user not found"</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> c.JSON(http.StatusOK, user)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>写入如下内容到<code>handler_test.go</code><br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> handler</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"net/http"</span></span><br><span class="line">	<span class="string">"net/http/httptest"</span></span><br><span class="line">	<span class="string">"strings"</span></span><br><span class="line">	<span class="string">"testing"</span></span><br><span class="line"></span><br><span class="line">	<span class="string">"github.com/labstack/echo"</span></span><br><span class="line">	<span class="string">"github.com/stretchr/testify/assert"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> (</span><br><span class="line">	mockDB = <span class="keyword">map</span>[<span class="keyword">string</span>]*User&#123;</span><br><span class="line">		<span class="string">"jon@labstack.com"</span>: &amp;User&#123;<span class="string">"Jon Snow"</span>, <span class="string">"jon@labstack.com"</span>&#125;,</span><br><span class="line">	&#125;</span><br><span class="line">	userJSON = <span class="string">`&#123;"name":"Jon Snow","email":"jon@labstack.com"&#125;`</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestCreateUser</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	<span class="comment">// Setup</span></span><br><span class="line">	e := echo.New()</span><br><span class="line">	req := httptest.NewRequest(echo.POST, <span class="string">"/"</span>, strings.NewReader(userJSON))</span><br><span class="line">	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)</span><br><span class="line">	rec := httptest.NewRecorder()</span><br><span class="line">	c := e.NewContext(req, rec)</span><br><span class="line">	h := &amp;handler&#123;mockDB&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Assertions</span></span><br><span class="line">	<span class="keyword">if</span> assert.NoError(t, h.createUser(c)) &#123;</span><br><span class="line">		assert.Equal(t, http.StatusCreated, rec.Code)</span><br><span class="line">		assert.Equal(t, userJSON, rec.Body.String())</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestGetUser</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	<span class="comment">// Setup</span></span><br><span class="line">	e := echo.New()</span><br><span class="line">	req := httptest.NewRequest(echo.GET, <span class="string">"/"</span>, <span class="literal">nil</span>)</span><br><span class="line">	rec := httptest.NewRecorder()</span><br><span class="line">	c := e.NewContext(req, rec)</span><br><span class="line">	c.SetPath(<span class="string">"/users/:email"</span>)</span><br><span class="line">	c.SetParamNames(<span class="string">"email"</span>)</span><br><span class="line">	c.SetParamValues(<span class="string">"jon@labstack.com"</span>)</span><br><span class="line">	h := &amp;handler&#123;mockDB&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Assertions</span></span><br><span class="line">	<span class="keyword">if</span> assert.NoError(t, h.getUser(c)) &#123;</span><br><span class="line">		assert.Equal(t, http.StatusOK, rec.Code)</span><br><span class="line">		assert.Equal(t, userJSON, rec.Body.String())</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>运行测试<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">go get github.com/stretchr/testify/assert</span><br><span class="line">go <span class="built_in">test</span></span><br></pre></td></tr></table></figure></p>
+<p>更多用法<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用 Form</span></span><br><span class="line">f := <span class="built_in">make</span>(url.Values)</span><br><span class="line">f.Set(<span class="string">"name"</span>, <span class="string">"Jon Snow"</span>)</span><br><span class="line">f.Set(<span class="string">"email"</span>, <span class="string">"jon@labstack.com"</span>)</span><br><span class="line">req := httptest.NewRequest(echo.POST, <span class="string">"/"</span>, strings.NewReader(f.Encode()))</span><br><span class="line">req.Header.Set(echo.HandlerContentType, echo.MIMEApplicationForm)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 设置URI参数</span></span><br><span class="line">c.SetParamNames(<span class="string">"id"</span>, <span class="string">"email"</span>)</span><br><span class="line">c.SetParamValues(<span class="string">"1"</span>, <span class="string">"jon@labstack.com"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 设置查询参数</span></span><br><span class="line">q := <span class="built_in">make</span>(url.Values)</span><br><span class="line">q.Set(<span class="string">"email"</span>, <span class="string">"jon@labstack.com"</span>)</span><br><span class="line">req := http.NewRequest(echo.POST, <span class="string">"/?"</span>+q.Encode(), <span class="literal">nil</span>)</span><br></pre></td></tr></table></figure></p>
+<h3 id="使用cookie"><a href="#使用cookie" class="headerlink" title="使用cookie"></a>使用cookie</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建cookie</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">writeCookie</span><span class="params">(c echo.Context)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	cookie := <span class="built_in">new</span>(http.Cookie)</span><br><span class="line">	cookie.Name = <span class="string">"username"</span></span><br><span class="line">	cookie.Value = <span class="string">"jon"</span></span><br><span class="line">	cookie.Expires = time.Now().Add(<span class="number">24</span> * time.Hour)</span><br><span class="line">	c.SetCookie(cookie)</span><br><span class="line">	<span class="keyword">return</span> c.String(http.StatusOK, <span class="string">"write a cookie"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 读取单个cookie</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">readCookie</span><span class="params">(c echo.Context)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	cookie, err := c.Cookie(<span class="string">"username"</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println(cookie.Name)</span><br><span class="line">	fmt.Println(cookie.Value)</span><br><span class="line">	<span class="keyword">return</span> c.String(http.StatusOK, <span class="string">"read a cookie"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 读取所有cookie</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">readAllCookies</span><span class="params">(c echo.Context)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> _, cookie := <span class="keyword">range</span> c.Cookies() &#123;</span><br><span class="line">		fmt.Println(cookie.Name)</span><br><span class="line">		fmt.Println(cookie.Value)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> c.String(http.StatusOK, <span class="string">"read all cookie"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h3><ul>
+<li><a href="https://echo.labstack.com/guide" target="_blank" rel="noopener">https://echo.labstack.com/guide</a></li>
+<li><a href="https://echo.labstack.com/cookbook" target="_blank" rel="noopener">https://echo.labstack.com/cookbook</a></li>
+<li><a href="https://echo.labstack.com/middleware" target="_blank" rel="noopener">https://echo.labstack.com/middleware</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/golang/" rel="tag"># golang</a>
+          
+            <a href="/tags/Web开发/" rel="tag"># Web开发</a>
+          
+            <a href="/tags/Echo/" rel="tag"># Echo</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/posts/5/" rel="next" title="go常用Web框架简介">
+                <i class="fa fa-chevron-left"></i> go常用Web框架简介
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/posts/7/" rel="prev" title="centos7安装配置kubernetes-v1.7">
+                centos7安装配置kubernetes-v1.7 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="mgxian" />
+          <p class="site-author-name" itemprop="name">mgxian</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/mgxian" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#安装-Echo"><span class="nav-number">2.</span> <span class="nav-text">安装 Echo</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hello-World-测试"><span class="nav-number">3.</span> <span class="nav-text">Hello World 测试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JSON-格式输出响应内容"><span class="nav-number">4.</span> <span class="nav-text">JSON 格式输出响应内容</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#路由"><span class="nav-number">5.</span> <span class="nav-text">路由</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#URI查询参数"><span class="nav-number">6.</span> <span class="nav-text">URI查询参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#从FORM接受参数"><span class="nav-number">7.</span> <span class="nav-text">从FORM接受参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#REST-API-示例"><span class="nav-number">8.</span> <span class="nav-text">REST API 示例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用中间件"><span class="nav-number">9.</span> <span class="nav-text">使用中间件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#静态文件"><span class="nav-number">10.</span> <span class="nav-text">静态文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用模板"><span class="nav-number">11.</span> <span class="nav-text">使用模板</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用测试组件"><span class="nav-number">12.</span> <span class="nav-text">使用测试组件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用cookie"><span class="nav-number">13.</span> <span class="nav-text">使用cookie</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考文档"><span class="nav-number">14.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">mgxian</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("iQlP5L75WVCE1k0dTxnzi15B-gzGzoHsz", "vLlwNDAYowJRpNIfirPwn8Cy");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

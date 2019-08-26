@@ -1,0 +1,1335 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="REST,API,Web," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="简介Representational State Transfer 简称 REST 描述了一个架构样式的网络系统。REST 指的是一组架构约束条件和原则。满足这些约束条件和原则的应用程序或设计就是 RESTful。 概念:  资源（Resources） REST是”表现层状态转化”，其实它省略了主语。”表现层”其实指的是”资源”的”表现层”。那么什么是资源呢？就是我们平常上网访问的一张图片、一个文">
+<meta name="keywords" content="REST,API,Web">
+<meta property="og:type" content="article">
+<meta property="og:title" content="REST接口设计规范总结">
+<meta property="og:url" content="https://mgxian.dev/posts/3/index.html">
+<meta property="og:site_name" content="mgxian&#39;s blog">
+<meta property="og:description" content="简介Representational State Transfer 简称 REST 描述了一个架构样式的网络系统。REST 指的是一组架构约束条件和原则。满足这些约束条件和原则的应用程序或设计就是 RESTful。 概念:  资源（Resources） REST是”表现层状态转化”，其实它省略了主语。”表现层”其实指的是”资源”的”表现层”。那么什么是资源呢？就是我们平常上网访问的一张图片、一个文">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-08-26T02:36:09.438Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="REST接口设计规范总结">
+<meta name="twitter:description" content="简介Representational State Transfer 简称 REST 描述了一个架构样式的网络系统。REST 指的是一组架构约束条件和原则。满足这些约束条件和原则的应用程序或设计就是 RESTful。 概念:  资源（Resources） REST是”表现层状态转化”，其实它省略了主语。”表现层”其实指的是”资源”的”表现层”。那么什么是资源呢？就是我们平常上网访问的一张图片、一个文">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://mgxian.dev/posts/3/"/>
+
+
+
+
+
+  <title>REST接口设计规范总结 | mgxian's blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">mgxian's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://mgxian.dev/posts/3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="mgxian">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="mgxian's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">REST接口设计规范总结</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-06-15T15:31:42+08:00">
+                2017-06-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Web开发/" itemprop="url" rel="index">
+                    <span itemprop="name">Web开发</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/posts/3/" class="leancloud_visitors" data-flag-title="REST接口设计规范总结">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>Representational State Transfer 简称 REST 描述了一个架构样式的网络系统。REST 指的是<br>一组架构约束条件和原则。满足这些约束条件和原则的应用程序或设计就是 RESTful。</p>
+<p>概念:</p>
+<ul>
+<li><p>资源（Resources） REST是”表现层状态转化”，其实它省略了主语。”表现层”其实指的是”资源”的”表现层”。<br>那么什么是资源呢？就是我们平常上网访问的一张图片、一个文档、一个视频等。这些资源我们通过URI来定位，也就是一个URI表示一个资源。</p>
+</li>
+<li><p>表现层（Representation）<br>资源是做一个具体的实体信息，他可以有多种的展现方式。而把实体展现出来就是表现层，例如一个txt文本信息，他可以输出成html、json、xml等格式，一个图片他可以jpg、png等方式展现，这个就是表现层的意思。<br>URI确定一个资源，但是如何确定它的具体表现形式呢？应该在HTTP请求的头信息中用Accept和Content-Type字段指定，这两个字段才是对”表现层”的描述。</p>
+</li>
+<li><p>状态转化（State Transfer）<br>访问一个网站，就代表了客户端和服务器的一个互动过程。在这个过程中，肯定涉及到数据和状态的变化。而HTTP协议是无状态的，那么这些状态肯定保存在服务器端，所以如果客户端想要通知服务器端改变数据和状态的变化，肯定要通过某种方式来通知它。</p>
+</li>
+</ul>
+<h3 id="URI格式规范"><a href="#URI格式规范" class="headerlink" title="URI格式规范"></a>URI格式规范</h3><ul>
+<li>URI中尽量使用连字符”-“代替下划线”_”的使用</li>
+<li>URI中统一使用小写字母</li>
+<li>URI中不要包含文件(脚本)的扩展名<a id="more"></a>
+<h3 id="资源的原型"><a href="#资源的原型" class="headerlink" title="资源的原型"></a>资源的原型</h3></li>
+<li>文档(Document)</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">文档是资源的单一表现形式，可以理解为一个对象，或者数据库中的一条记录。在请求文档时，</span><br><span class="line">要么返回文档对应的数据，要么会返回一个指向另外一个资源(文档)的链接。</span><br><span class="line">以下是几个基于文档定义的URI例子：</span><br><span class="line">https://api.example.com/users/will</span><br><span class="line">https://api.example.com/posts/1</span><br><span class="line">https://api.example.com/posts/1/comments/1</span><br></pre></td></tr></table></figure>
+<ul>
+<li>集合(Collection)</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">集合可以理解为是资源的一个容器(目录)，我们可以向里面添加资源(文档)。例如：</span><br><span class="line">https://api.example.com/users</span><br><span class="line">https://api.example.com/posts</span><br><span class="line">https://api.example.com/posts/1/comments</span><br></pre></td></tr></table></figure>
+<ul>
+<li>仓库(Store)</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">仓库是客户端来管理的一个资源库，客户端可以向仓库中新增资源或者删除资源。</span><br><span class="line">客户端也可以批量获取到某个仓库下的所有资源。仓库中的资源对外的访问不会提供单独URI的，</span><br><span class="line">客户端在创建资源时候的URI除外。例如：</span><br><span class="line">PUT /users/1234/favorites/posts/1  </span><br><span class="line">上面的例子我们可以理解为，我们向一个id是1234的用户的仓库(收藏夹)中，</span><br><span class="line">添加了一个id为1的post资源。通俗点儿说：就是用户收藏了一个自己喜爱的id为1的文章。</span><br></pre></td></tr></table></figure>
+<ul>
+<li>控制器(Controller)</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">控制器资源模型，可以执行一个方法，支持参数输入，结果返回。 是为了除了标准操作:</span><br><span class="line">增删改查(CRUD)以外的一些逻辑操作。控制器(方法)一般定义子URI中末尾，</span><br><span class="line">并且不会有子资源(控制器)。例如：</span><br><span class="line">向用户重发ID为245743的消息</span><br><span class="line">POST /alerts/245743/resend  </span><br><span class="line"></span><br><span class="line">发布ID为1的文章</span><br><span class="line">POST /posts/1/publish</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>把动作转换成资源</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">把动作转换成可以执行 CRUD 操作的资源， github 就是用了这种方法。</span><br><span class="line"></span><br><span class="line">比如“喜欢”一个 gist，就增加一个 /gists/:id/star 子资源，</span><br><span class="line">然后对其进行操作：“喜欢”使用 PUT /gists/:id/star，</span><br><span class="line">“取消喜欢”使用 DELETE /gists/:id/star</span><br><span class="line">或者使用 POST /gists/:id/unstar</span><br><span class="line"></span><br><span class="line">另外一个例子是 Fork，这也是一个动作，但是在 gist 下面增加 forks资源，</span><br><span class="line">就能把动作变成 CRUD 兼容的：POST /gists/:id/forks 可以执行用户 fork 的动作。</span><br></pre></td></tr></table></figure>
+<h3 id="URI命名规范"><a href="#URI命名规范" class="headerlink" title="URI命名规范"></a>URI命名规范</h3><ul>
+<li>文档(Document)类型的资源用名词(短语)单数命名</li>
+<li>集合(Collection)类型的资源用名词(短语)复数命名</li>
+<li>仓库(Store)类型的资源用名词(短语)复数命名</li>
+<li>控制器(Controller)类型的资源用动词(短语)命名</li>
+<li>URI中有些字段可以是变量，在实际使用中可以按需替换</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">例如一个资源URI可以这样定义：</span><br><span class="line">https://api.example.com/posts/&#123;postId&#125;/comments/&#123;commentId&#125;</span><br><span class="line">postId,commentId 是变量(数字，字符串都类型都可以)。</span><br></pre></td></tr></table></figure>
+<ul>
+<li>CRUD的操作不要体现在URI中，HTTP协议中的操作符已经对CRUD做了映射。</li>
+</ul>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">CRUD是创建，读取，更新，删除这四个经典操作的简称  </span><br><span class="line">例如删除的操作用REST规范执行的话，应该是这个样子：</span><br><span class="line">DELETE /users/1234</span><br><span class="line"></span><br><span class="line">以下是几个错误的示例：</span><br><span class="line">GET /deleteUser?id=1234  </span><br><span class="line">GET /deleteUser/1234  </span><br><span class="line">DELETE /deleteUser/1234  </span><br><span class="line">POST /users/1234/delete</span><br></pre></td></tr></table></figure>
+<h3 id="URI的query字段"><a href="#URI的query字段" class="headerlink" title="URI的query字段"></a>URI的query字段</h3><p>在REST中,query字段一般作为查询的参数补充，也可以帮助标示一个唯一的资源。但需要注意的是，<br>作为一个提供查询功能的URI，无论是否有query条件，我们都应该保证结果的唯一性，<br>一个URI对应的返回数据是不应该被改变的(在资源没有修改的情况下)。<br>HTTP中的缓存也可能缓存查询结果。</p>
+<ul>
+<li>Query参数可以作为Collection或Store类型资源的过滤条件来使用 例如：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GET /users //返回所有用户列表  </span><br><span class="line">GET /users?role=admin //返回权限为admin的用户列表</span><br><span class="line">GET /search/users?q=&#123;query&#125;&#123;&amp;page,per_page,sort,order&#125; //根据多条件查询用户</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Query参数可以作为Collection或Store资源列表分页标示使用</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">如果是一个简单的列表操作，可以这样设计：</span><br><span class="line">GET /users?pageSize=25&amp;pageStartIndex=50  </span><br><span class="line">如果是一个复杂的列表或查询操作的话，我们可以为资源设计一个Collection，</span><br><span class="line">因为复杂查询可能会涉及比较多的参数，建议使用Post的方式传入，例如这样：</span><br><span class="line">POST /users/search</span><br><span class="line"></span><br><span class="line">相关的分页信息还可以存放到 Link 头部，这样客户端可以直接得到诸如下一页、最后一页、上一页</span><br><span class="line">等内容的 url 地址</span><br><span class="line">Status: 200 OK</span><br><span class="line">Link: &lt;https://api.github.com/resource?page=2&gt;; rel=&quot;previous&quot;,</span><br><span class="line">      &lt;https://api.github.com/resource?page=2&gt;; rel=&quot;next&quot;,</span><br><span class="line">      &lt;https://api.github.com/resource?page=5&gt;; rel=&quot;last&quot;</span><br><span class="line">X-RateLimit-Limit: 20</span><br><span class="line">X-RateLimit-Remaining: 19</span><br></pre></td></tr></table></figure>
+<h3 id="HTTP请求方法的使用"><a href="#HTTP请求方法的使用" class="headerlink" title="HTTP请求方法的使用"></a>HTTP请求方法的使用</h3><ul>
+<li>GET方法用来获取资源</li>
+<li>PUT方法可用来新增/更新Store类型的资源</li>
+<li>PUT方法可用来更新一个资源的全部属性，使用时传递所有属性的值，即使有的值没有改变</li>
+<li>PATCH方法更新资源的部分属性。因为 PATCH 比较新，而且规范比较复杂，所以真正实现的比较少，<br>一般都是用 POST 替代</li>
+<li>POST方法可用来创建一个资源</li>
+<li>POST方法可用来触发执行一个Controller类型资源</li>
+<li>DELETE方法用于删除资源</li>
+</ul>
+<h3 id="HTTP响应状态码的使用"><a href="#HTTP响应状态码的使用" class="headerlink" title="HTTP响应状态码的使用"></a>HTTP响应状态码的使用</h3><ul>
+<li>200 (“OK”) 用于一般性的成功返回</li>
+<li>200 (“OK”) 不可用于请求错误返回</li>
+<li>201 (“Created”) 资源被创建</li>
+<li>202 (“Accepted”) 用于Controller控制类资源异步处理的返回，仅表示请求已经收到。<br>对于耗时比较久的处理，一般用异步处理来完成</li>
+<li>204 (“No Content”) 此状态可能会出现在PUT、POST、DELETE的请求中，一般表示资源存在，<br>但消息体中不会返回任何资源相关的状态或信息。</li>
+<li>301 (“Moved Permanently”) 资源的URI被转移，需要使用新的URI访问</li>
+<li>302 (“Found”) 不推荐使用，此代码在HTTP1.1协议中被303/307替代。<br>我们目前对302的使用和最初HTTP1.0定义的语意是有出入的，应该只有在GET/HEAD方法下，<br>客户端才能根据Location执行自动跳转，而我们目前的客户端基本上是不会判断原请求方法的，<br>无条件的执行临时重定向</li>
+<li>303 (“See Other”) 返回一个资源地址URI的引用，但不强制要求客户端获取该地址的状态(访问该地址)</li>
+<li>304 (“Not Modified”) 有一些类似于204状态，服务器端的资源与客户端最近访问的资源版本一致，<br>并无修改，不返回资源消息体。可以用来降低服务端的压力</li>
+<li>307 (“Temporary Redirect”) 目前URI不能提供当前请求的服务，临时性重定向到另外一个URI。<br>在HTTP1.1中307是用来替代早期HTTP1.0中使用不当的302</li>
+<li>400 (“Bad Request”) 用于客户端一般性错误返回, 在其它4xx错误以外的错误，也可以使用400，<br>具体错误信息可以放在body中</li>
+<li>401 (“Unauthorized”) 在访问一个需要验证的资源时，验证错误</li>
+<li>403 (“Forbidden”) 一般用于非验证性资源访问被禁止，例如对于某些客户端只开放部分API的访问权限，<br>而另外一些API可能无法访问时，可以给予403状态</li>
+<li>404 (“Not Found”) 找不到URI对应的资源</li>
+<li>405 (“Method Not Allowed”) HTTP的方法不支持，例如某些只读资源，可能不支持POST/DELETE。<br>但405的响应header中必须声明该URI所支持的方法</li>
+<li>406 (“Not Acceptable”) 客户端所请求的资源数据格式类型不被支持，<br>例如客户端请求数据格式为application/xml，但服务器端只支持application/json</li>
+<li>409 (“Conflict”) 资源状态冲突，例如客户端尝试删除一个非空的Store资源</li>
+<li>412 (“Precondition Failed”) 用于有条件的操作不被满足时</li>
+<li>415 (“Unsupported Media Type”) 客户所支持的数据类型，服务端无法满足</li>
+<li>429    (“Too Many Requests”)    客户端在规定的时间里发送了太多请求，在进行限流的时候会用到</li>
+<li>500 (“Internal Server Error”) 服务器端的接口错误，此错误于客户端无关</li>
+</ul>
+<h3 id="HTTP-Headers"><a href="#HTTP-Headers" class="headerlink" title="HTTP Headers"></a>HTTP Headers</h3><ul>
+<li>Content-Type 标示body的数据格式</li>
+<li>Content-Length body 数据体的大小，客户端可以根据此标示检验读取到的数据是否完整，<br>也可以通过Header判断是否需要下载可能较大的数据体</li>
+<li>Last-Modified 用于服务器端的响应，是一个资源最后被修改的时间戳，客户端(缓存)可以根据<br>此信息判断是否需要重新获取该资源</li>
+<li>ETag 服务器端资源版本的标示，客户端(缓存)可以根据此信息判断是否需要重新获取该资源，<br>需要注意的是，ETag如果通过服务器随机生成，可能会存在多个主机对同一个资源产生不同ETag的问题</li>
+<li>Store类型的资源要支持有条件的PUT请求</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">假设有两个客户端client#1/#2都向一个Store资源提交PUT请求，服务端是无法清楚的判断是要</span><br><span class="line">insert还是要update的，所以我们要在header中加入条件标示if-Match，If-Unmodified-Since</span><br><span class="line">来明确是本次调用API的意图。例如：</span><br><span class="line"></span><br><span class="line">client#1第一次向服务端发起一个请求 PUT /objects/2113 此时2113资源还不存在，那服务端会</span><br><span class="line">认为本次请求是一个insert操作，完成后，会返回 201 (“Created”)</span><br><span class="line"></span><br><span class="line">client#2再一次向服务端发起同一个请求 PUT /objects/2113 时，因2113资源已存在，服务端会</span><br><span class="line">返回 409 (“Conflict”)</span><br><span class="line"></span><br><span class="line">为了能让client#2的请求成功，或者说我们要清楚的表明本次操作是一次update操作，我们必须在</span><br><span class="line">header中加入一些条件标示，例如 if-Match。我们需要给出资源的ETag(if-Match:Etag)，来表</span><br><span class="line">明我们希望更新资源的版本，如果服务端版本一致，会返回200 (“OK”) 或者 204 (“No Content”)。</span><br><span class="line">如果服务端发现指定的版本与当前资源版本不一致，会返回 412 (“Precondition Failed”)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Location 在响应header中使用，一般为客户端感兴趣的资源URI,例如在成功创建一个资源后，我们<br>可以把新的资源URI放在Location中，如果是一个异步创建资源的请求，接口在响应202 (“Accepted”)<br>的同时可以给予客户端一个异步状态查询的地址</li>
+<li>Cache-Control, Expires, Date 通过缓存机制提升接口响应性能,同时根据实际需要也可以禁止<br>客户端对接口请求做缓存。对于REST接口来说，如果某些接口实时性要求不高的情况下，我们可以使<br>用max-age来指定一个小的缓存时间，这样对客户端和服务器端双方都是有利的。一般来说只对GET<br>方法且返回200的情况下使用缓存，在某些情况下我们也可以对返回3xx或者4xx的情况下做缓存，可<br>以防范错误访问带来的负载。</li>
+<li>我们可以自定义一些头信息，作为客户端和服务器间的通信使用，但不能改变HTTP方法的性质。自<br>定义头尽量简单明了，不要用body中的信息对其作补充说明。</li>
+</ul>
+<h3 id="API-地址和版本"><a href="#API-地址和版本" class="headerlink" title="API 地址和版本"></a>API 地址和版本</h3><p>在 url 中指定 API 的版本是个很好地做法。如果 API 变化比较大，可以把 API 设计为子域名，<br>比如 <a href="https://api.github.com/v3；也可以简单地把版本放在路径中，比如" target="_blank" rel="noopener">https://api.github.com/v3；也可以简单地把版本放在路径中，比如</a> <a href="https://example.com/api/v1。" target="_blank" rel="noopener">https://example.com/api/v1。</a><br>另一种做法是，将版本号放在HTTP头信息中。</p>
+<h3 id="限流-rate-limit"><a href="#限流-rate-limit" class="headerlink" title="限流 rate limit"></a>限流 rate limit</h3><p>如果对访问的次数不加控制，很可能会造成 API 被滥用，甚至被 DDos 攻击。根据使用者不同的身<br>份对其进行限流，可以防止这些情况，减少服务器的压力。</p>
+<p>对用户的请求限流之后，要有方法告诉用户它的请求使用情况，Github API 使用的三个相关的头部：</p>
+<ul>
+<li>X-RateLimit-Limit: 用户每个小时允许发送请求的最大值</li>
+<li>X-RateLimit-Remaining：当前时间窗口剩下的可用请求数目</li>
+<li>X-RateLimit-Rest: 时间窗口重置的时候，到这个时间点可用的请求数量就会变成 X-RateLimit-Limit 的值</li>
+</ul>
+<p>对于超过流量的请求，可以返回 429 Too many requests 状态码，并附带错误信息。</p>
+<h3 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h3><ul>
+<li><a href="http://cizixs.com/2016/12/12/restful-api-design-guide" target="_blank" rel="noopener">http://cizixs.com/2016/12/12/restful-api-design-guide</a></li>
+<li><a href="http://wangwei.info/about-rest-api/" target="_blank" rel="noopener">http://wangwei.info/about-rest-api/</a></li>
+<li><a href="http://www.ruanyifeng.com/blog/2011/09/restful.html" target="_blank" rel="noopener">http://www.ruanyifeng.com/blog/2011/09/restful.html</a></li>
+<li><a href="http://www.ruanyifeng.com/blog/2014/05/restful_api.html" target="_blank" rel="noopener">http://www.ruanyifeng.com/blog/2014/05/restful_api.html</a></li>
+<li><a href="https://zh.wikipedia.org/wiki/REST" target="_blank" rel="noopener">https://zh.wikipedia.org/wiki/REST</a></li>
+<li><a href="https://developer.github.com/v3" target="_blank" rel="noopener">https://developer.github.com/v3</a></li>
+<li><a href="http://novoland.github.io/%E8%AE%BE%E8%AE%A1/2015/08/17/Restful%20API%20%E7%9A%84%E8%AE%BE%E8%AE%A1%E8%A7%84%E8%8C%83.html" target="_blank" rel="noopener">http://novoland.github.io/%E8%AE%BE%E8%AE%A1/2015/08/17/Restful%20API%20%E7%9A%84%E8%AE%BE%E8%AE%A1%E8%A7%84%E8%8C%83.html</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/REST/" rel="tag"># REST</a>
+          
+            <a href="/tags/API/" rel="tag"># API</a>
+          
+            <a href="/tags/Web/" rel="tag"># Web</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/posts/2/" rel="next" title="codis3系列版本安装">
+                <i class="fa fa-chevron-left"></i> codis3系列版本安装
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/posts/4/" rel="prev" title="markdown语法总结">
+                markdown语法总结 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="mgxian" />
+          <p class="site-author-name" itemprop="name">mgxian</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/mgxian" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#URI格式规范"><span class="nav-number">2.</span> <span class="nav-text">URI格式规范</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#资源的原型"><span class="nav-number">3.</span> <span class="nav-text">资源的原型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#URI命名规范"><span class="nav-number">4.</span> <span class="nav-text">URI命名规范</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#URI的query字段"><span class="nav-number">5.</span> <span class="nav-text">URI的query字段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTP请求方法的使用"><span class="nav-number">6.</span> <span class="nav-text">HTTP请求方法的使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTP响应状态码的使用"><span class="nav-number">7.</span> <span class="nav-text">HTTP响应状态码的使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTP-Headers"><span class="nav-number">8.</span> <span class="nav-text">HTTP Headers</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#API-地址和版本"><span class="nav-number">9.</span> <span class="nav-text">API 地址和版本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#限流-rate-limit"><span class="nav-number">10.</span> <span class="nav-text">限流 rate limit</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考文档"><span class="nav-number">11.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">mgxian</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("iQlP5L75WVCE1k0dTxnzi15B-gzGzoHsz", "vLlwNDAYowJRpNIfirPwn8Cy");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

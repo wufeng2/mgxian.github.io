@@ -1,0 +1,1282 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="ceph,storage," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="简介ceph是一个开源分布式存储系统，支持PB级别的存储，支持对象存储，块存储和文件存储，高性能，高可用，可扩展。">
+<meta name="keywords" content="ceph,storage">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ceph安装配置">
+<meta property="og:url" content="https://mgxian.dev/posts/47/index.html">
+<meta property="og:site_name" content="mgxian&#39;s blog">
+<meta property="og:description" content="简介ceph是一个开源分布式存储系统，支持PB级别的存储，支持对象存储，块存储和文件存储，高性能，高可用，可扩展。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://mgxian.dev/posts/47/ceph-network.png">
+<meta property="og:image" content="https://mgxian.dev/posts/47/ceph-deploy-arch.png">
+<meta property="og:image" content="https://mgxian.dev/posts/47/ceph-use-1.jpg">
+<meta property="og:image" content="https://mgxian.dev/posts/47/ceph-use-2.jpg">
+<meta property="og:updated_time" content="2019-08-26T02:36:09.443Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ceph安装配置">
+<meta name="twitter:description" content="简介ceph是一个开源分布式存储系统，支持PB级别的存储，支持对象存储，块存储和文件存储，高性能，高可用，可扩展。">
+<meta name="twitter:image" content="https://mgxian.dev/posts/47/ceph-network.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://mgxian.dev/posts/47/"/>
+
+
+
+
+
+  <title>ceph安装配置 | mgxian's blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">mgxian's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://mgxian.dev/posts/47/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="mgxian">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="mgxian's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">ceph安装配置</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-17T14:09:45+08:00">
+                2018-08-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/运维/" itemprop="url" rel="index">
+                    <span itemprop="name">运维</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/posts/47/" class="leancloud_visitors" data-flag-title="ceph安装配置">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>ceph是一个开源分布式存储系统，支持PB级别的存储，支持对象存储，块存储和文件存储，高性能，高可用，可扩展。<br><a id="more"></a></p>
+<blockquote>
+<p>部署网络建议架构图</p>
+</blockquote>
+<p><img src="/posts/47/ceph-network.png" alt=""></p>
+<h3 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h3><blockquote>
+<p>部署架构图，本次实验部署jewel版本</p>
+</blockquote>
+<p><img src="/posts/47/ceph-deploy-arch.png" alt=""></p>
+<h4 id="实验环境的Vagrantfile"><a href="#实验环境的Vagrantfile" class="headerlink" title="实验环境的Vagrantfile"></a>实验环境的<code>Vagrantfile</code></h4><blockquote>
+<p>lab1节点既作admin节点又作node节点，lab2，lab3只作为node节点，lab4作为作测试使用ceph的节点</p>
+</blockquote>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- mode: ruby -*-</span></span><br><span class="line"><span class="comment"># vi: set ft=ruby :</span></span><br><span class="line"></span><br><span class="line">ENV[<span class="string">"LC_ALL"</span>] = <span class="string">"en_US.UTF-8"</span></span><br><span class="line"></span><br><span class="line">Vagrant.configure(<span class="string">"2"</span>) <span class="keyword">do</span> <span class="params">|config|</span></span><br><span class="line">    (<span class="number">1</span>..<span class="number">4</span>).each <span class="keyword">do</span> <span class="params">|i|</span></span><br><span class="line">      config.vm.define <span class="string">"lab<span class="subst">#&#123;i&#125;</span>"</span> <span class="keyword">do</span> <span class="params">|node|</span></span><br><span class="line">        node.vm.box = <span class="string">"centos-7.4-docker-17"</span></span><br><span class="line">        node.ssh.insert_key = <span class="literal">false</span></span><br><span class="line">        node.vm.hostname = <span class="string">"lab<span class="subst">#&#123;i&#125;</span>"</span></span><br><span class="line">        node.vm.network <span class="string">"private_network"</span>, <span class="symbol">ip:</span> <span class="string">"11.11.11.11<span class="subst">#&#123;i&#125;</span>"</span></span><br><span class="line">        node.vm.provision <span class="string">"shell"</span>,</span><br><span class="line">          <span class="symbol">inline:</span> <span class="string">"echo hello from node <span class="subst">#&#123;i&#125;</span>"</span></span><br><span class="line">        node.vm.provider <span class="string">"virtualbox"</span> <span class="keyword">do</span> <span class="params">|v|</span></span><br><span class="line">          v.cpus = <span class="number">3</span></span><br><span class="line">          v.customize [<span class="string">"modifyvm"</span>, <span class="symbol">:id</span>, <span class="string">"--name"</span>, <span class="string">"lab<span class="subst">#&#123;i&#125;</span>"</span>, <span class="string">"--memory"</span>, <span class="string">"3096"</span>]</span><br><span class="line">          file_to_disk = <span class="string">"lab<span class="subst">#&#123;i&#125;</span>_vdb.vdi"</span></span><br><span class="line">          <span class="keyword">unless</span> File.exist?(file_to_disk)</span><br><span class="line">            <span class="comment"># 50GB</span></span><br><span class="line">            v.customize [<span class="string">'createhd'</span>, <span class="string">'--filename'</span>, file_to_disk, <span class="string">'--size'</span>, <span class="number">50</span> * <span class="number">1024</span>]</span><br><span class="line">          <span class="keyword">end</span></span><br><span class="line">          v.customize [<span class="string">'storageattach'</span>, <span class="symbol">:id</span>, <span class="string">'--storagectl'</span>, <span class="string">'IDE'</span>, <span class="string">'--port'</span>, <span class="number">1</span>, <span class="string">'--device'</span>, <span class="number">0</span>, <span class="string">'--type'</span>, <span class="string">'hdd'</span>, <span class="string">'--medium'</span>, file_to_disk]</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<h4 id="配置阿里ceph源"><a href="#配置阿里ceph源" class="headerlink" title="配置阿里ceph源"></a>配置阿里ceph源</h4><blockquote>
+<p>在所有节点执行如下操作</p>
+</blockquote>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">cat &gt;/etc/yum.repos.d/ceph.repo&lt;&lt;EOF</span><br><span class="line">[ceph]</span><br><span class="line">name=ceph</span><br><span class="line">baseurl=http://mirrors.aliyun.com/ceph/rpm-jewel/el7/x86_64/</span><br><span class="line">gpgcheck=0</span><br><span class="line">priority=1</span><br><span class="line"></span><br><span class="line">[ceph-noarch]</span><br><span class="line">name=cephnoarch</span><br><span class="line">baseurl=http://mirrors.aliyun.com/ceph/rpm-jewel/el7/noarch/</span><br><span class="line">gpgcheck=0</span><br><span class="line">priority=1</span><br><span class="line"></span><br><span class="line">[ceph-source]</span><br><span class="line">name=Ceph <span class="built_in">source</span> packages</span><br><span class="line">baseurl=http://mirrors.163.com/ceph/rpm-jewel/el7/SRPMS</span><br><span class="line">enabled=0</span><br><span class="line">gpgcheck=1</span><br><span class="line"><span class="built_in">type</span>=rpm-md</span><br><span class="line">gpgkey=http://mirrors.163.com/ceph/keys/release.asc</span><br><span class="line">priority=1</span><br><span class="line">EOF</span><br><span class="line">yum makecache</span><br></pre></td></tr></table></figure>
+<h4 id="在admin节点安装ceph-deploy"><a href="#在admin节点安装ceph-deploy" class="headerlink" title="在admin节点安装ceph-deploy"></a>在admin节点安装ceph-deploy</h4><blockquote>
+<p>lab1 节点</p>
+</blockquote>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 官方源</span></span><br><span class="line"><span class="comment"># 如果已经配置了上面的阿里源，不需要再配置如下的源</span></span><br><span class="line"><span class="comment"># 推荐使用阿里源，因为官方源速度太慢</span></span><br><span class="line">cat &gt;/etc/yum.repos.d/ceph.repo&lt;&lt;EOF</span><br><span class="line">[ceph-noarch]</span><br><span class="line">name=Ceph noarch packages</span><br><span class="line">baseurl=https://download.ceph.com/rpm-jewel/el7/noarch</span><br><span class="line">enabled=1</span><br><span class="line">gpgcheck=1</span><br><span class="line"><span class="built_in">type</span>=rpm-md</span><br><span class="line">gpgkey=https://download.ceph.com/keys/release.asc</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="comment"># 更新系统软件</span></span><br><span class="line"><span class="comment"># 此操作可省略</span></span><br><span class="line"><span class="comment"># yum update -y</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装 ceph-deploy</span></span><br><span class="line">yum install -y ceph-deploy</span><br></pre></td></tr></table></figure>
+<h4 id="配置admin节点连接node节点"><a href="#配置admin节点连接node节点" class="headerlink" title="配置admin节点连接node节点"></a>配置admin节点连接node节点</h4><blockquote>
+<p> 安装之后需要配置admin节点可以ssh无密码登录每个node节点和测试节点，用户需要有sudo权限</p>
+</blockquote>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在每一个node节点执行</span></span><br><span class="line">useradd ceph</span><br><span class="line"><span class="built_in">echo</span> <span class="string">'ceph'</span> | passwd --stdin ceph</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"ceph ALL = (root) NOPASSWD:ALL"</span> &gt; /etc/sudoers.d/ceph</span><br><span class="line">chmod 0440 /etc/sudoers.d/ceph</span><br><span class="line"><span class="comment"># 配置sshd可以使用password登录</span></span><br><span class="line">sed -i <span class="string">'s/PasswordAuthentication no/PasswordAuthentication yes/'</span> /etc/ssh/sshd_config</span><br><span class="line">systemctl reload sshd</span><br><span class="line"><span class="comment"># 配置sudo不需要tty</span></span><br><span class="line">sed -i <span class="string">'s/Default requiretty/#Default requiretty/'</span> /etc/sudoers</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在所有节点配置hosts</span></span><br><span class="line"><span class="comment"># 包括要进行ceph测试的机器</span></span><br><span class="line"><span class="comment"># 使用vagrant实验时注意</span></span><br><span class="line"><span class="comment"># 由于vagrant会自动把主机名解析为 127.0.0.1</span></span><br><span class="line"><span class="comment"># 所以在实验时如果在ceph集群内任意一台机器进行实验时</span></span><br><span class="line"><span class="comment"># 注意把本机名解析为 127.0.0.1 的行注释，如下所示</span></span><br><span class="line"><span class="comment"># 127.0.0.1	lab1	lab1</span></span><br><span class="line">cat &gt;&gt;/etc/hosts&lt;&lt;EOF</span><br><span class="line">11.11.11.111 lab1</span><br><span class="line">11.11.11.112 lab2</span><br><span class="line">11.11.11.113 lab3</span><br><span class="line">11.11.11.113 lab4</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在admin节点执行</span></span><br><span class="line"><span class="comment"># 创建ceph用户，配置sshkey登录</span></span><br><span class="line"><span class="comment"># 由于lab1节点作为node节点时已经创建过ceph用户</span></span><br><span class="line"><span class="comment"># 第一条命令可能会出错，忽略即可</span></span><br><span class="line">useradd ceph</span><br><span class="line">su - ceph</span><br><span class="line">ssh-keygen</span><br><span class="line">ssh-copy-id ceph@lab1</span><br><span class="line">ssh-copy-id ceph@lab2</span><br><span class="line">ssh-copy-id ceph@lab3</span><br><span class="line">ssh-copy-id ceph@lab4</span><br></pre></td></tr></table></figure>
+<h4 id="在admin节点创建集群"><a href="#在admin节点创建集群" class="headerlink" title="在admin节点创建集群"></a>在admin节点创建集群</h4><blockquote>
+<p>在lab1节点执行如下操作，node的主机名一定要设置正确 lab1, lab2, lab3。否则可能会无法实验成功</p>
+</blockquote>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 不要使用sudo也不要使用root用户运行如下的命令</span></span><br><span class="line">su - ceph</span><br><span class="line">mkdir my-cluster</span><br><span class="line"><span class="built_in">cd</span> my-cluster</span><br><span class="line"><span class="comment"># 创建lab1为monitor</span></span><br><span class="line">ceph-deploy new lab1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看配置文件</span></span><br><span class="line">ls -l</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置ceph.conf</span></span><br><span class="line">[global]</span><br><span class="line">...</span><br><span class="line"><span class="comment"># 如果有多个网卡，应该配置如下选项，</span></span><br><span class="line"><span class="comment"># public network是公共网络，负责集群对外提供服务的流量</span></span><br><span class="line"><span class="comment"># cluster network是集群网络，负载集群中数据复制传输通信等</span></span><br><span class="line"><span class="comment"># 本次实验使用同一块网卡，生境环境建议分别使用一块网卡</span></span><br><span class="line">public network = 11.11.11.0/24</span><br><span class="line">cluster network = 11.11.11.0/24</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装 ceph 包</span></span><br><span class="line"><span class="comment"># 如果按照官方文档安装方法 会重新配置安装官方ceph源</span></span><br><span class="line"><span class="comment"># 由于网络问题，安装可能会出错，需要多次执行</span></span><br><span class="line"><span class="comment"># ceph-deploy install 其实只是会安装 ceph ceph-radosgw 两个包</span></span><br><span class="line"><span class="comment"># ceph-deploy install lab1 lab2 lab3</span></span><br><span class="line"><span class="comment"># 推荐使用阿里源安装，因为使用ceph-deploy安装会很慢</span></span><br><span class="line"><span class="comment"># 使用如下命令手动安装包，替代官方的 ceph-deploy install 命令</span></span><br><span class="line"><span class="comment"># 如下操作在所有node节点上执行</span></span><br><span class="line">yum install -y ceph ceph-radosgw</span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署monitor和生成keys</span></span><br><span class="line">ceph-deploy mon create-initial</span><br><span class="line">ls -l *.keyring</span><br><span class="line"></span><br><span class="line"><span class="comment"># 复制文件到node节点</span></span><br><span class="line">ceph-deploy admin lab1 lab2 lab3</span><br><span class="line"></span><br><span class="line"><span class="comment"># 部署manager （luminous+）12及以后的版本需要部署</span></span><br><span class="line"><span class="comment"># 本次部署 jewel 版本 ，不需要执行如下命令</span></span><br><span class="line"><span class="comment"># ceph-deploy mgr create lab1</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加osd 以磁盘方式</span></span><br><span class="line"><span class="comment"># 本次实验采用此种方法</span></span><br><span class="line"><span class="comment"># sdb 为虚拟机添加的磁盘设置名</span></span><br><span class="line">ceph-deploy osd create lab1:sdb lab2:sdb lab3:sdb</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在node节点创建目录</span></span><br><span class="line">rm -rf /data/osd1</span><br><span class="line">mkdir -pv /data/osd1</span><br><span class="line">chmod 777 -R /data/osd1</span><br><span class="line">chown ceph.ceph -R /data/osd1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加osd 以文件目录方式</span></span><br><span class="line">ceph-deploy osd prepare lab1:/data/osd1 lab2:/data/osd1 lab3:/data/osd1</span><br><span class="line">ceph-deploy osd activate lab1:/data/osd1 lab2:/data/osd1 lab3:/data/osd1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看状态</span></span><br><span class="line">ssh lab1 sudo ceph health</span><br><span class="line">ssh lab1 sudo ceph -s</span><br></pre></td></tr></table></figure>
+<h4 id="清理集群"><a href="#清理集群" class="headerlink" title="清理集群"></a>清理集群</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 如果安装过程出错，使用如下命令清理之后重新开始</span></span><br><span class="line">ceph-deploy purge lab1 lab2 lab3</span><br><span class="line">ceph-deploy purgedata lab1 lab2 lab3</span><br><span class="line">ceph-deploy forgetkeys</span><br><span class="line">rm ceph.*</span><br></pre></td></tr></table></figure>
+<h3 id="扩展集群"><a href="#扩展集群" class="headerlink" title="扩展集群"></a>扩展集群</h3><h4 id="提高可用性"><a href="#提高可用性" class="headerlink" title="提高可用性"></a>提高可用性</h4><blockquote>
+<ul>
+<li>在lab1上运行metadata server 为后续使用cephfs</li>
+<li>在lab2,lab3运行monitor和manager提高集群可用性</li>
+</ul>
+</blockquote>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 为了使用CephFS，必须启动 metadata server</span></span><br><span class="line">ceph-deploy mds create lab1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加monitor</span></span><br><span class="line">ceph-deploy mon add lab2</span><br><span class="line">ceph-deploy mon add lab3</span><br><span class="line">ssh lab1 sudo ceph -s</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在monitor节点查看状态（需要以root用户或者sudo查看）</span></span><br><span class="line">ceph quorum_status --format json-pretty</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加manager （luminous+）12及以后的版本需要部署</span></span><br><span class="line"><span class="comment"># 本次部署 jewel 版本 ，不需要执行如下命令</span></span><br><span class="line"><span class="comment"># ceph-deploy mgr create lab2 lab3</span></span><br></pre></td></tr></table></figure>
+<h4 id="部署RGW使用Ceph-Object-Gateway"><a href="#部署RGW使用Ceph-Object-Gateway" class="headerlink" title="部署RGW使用Ceph Object Gateway"></a>部署RGW使用Ceph Object Gateway</h4><blockquote>
+<p>提供S3/Swift存储功能，实现S3和Swift兼容的接口，可以使用S3或Swift的命令行工具或SDK来使用ceph<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 启动 rgw</span></span><br><span class="line">ceph-deploy rgw create lab1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 修改配置 /etc/ceph/ceph.conf</span></span><br><span class="line"><span class="comment"># 使用 rgw 监听在 80 端口</span></span><br><span class="line"><span class="comment"># lab1 为启动 rgw 的主机名</span></span><br><span class="line">[client.rgw.lab1]</span><br><span class="line">rgw_frontends = <span class="string">"civetweb port=80"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启 rgw</span></span><br><span class="line">systemctl restart ceph-radosgw@rgw.lab1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 访问测试</span></span><br><span class="line">curl -I http://11.11.11.111/</span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<h3 id="使用ceph存储"><a href="#使用ceph存储" class="headerlink" title="使用ceph存储"></a>使用ceph存储</h3><blockquote>
+<p>应用存储使用架构图</p>
+</blockquote>
+<p><img src="/posts/47/ceph-use-1.jpg" alt=""></p>
+<p><img src="/posts/47/ceph-use-2.jpg" alt=""></p>
+<h4 id="对象存储"><a href="#对象存储" class="headerlink" title="对象存储"></a>对象存储</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装ceph</span></span><br><span class="line">yum install -y ceph</span><br><span class="line"></span><br><span class="line"><span class="comment"># 复制相关文件到要使用ceph-client的机器</span></span><br><span class="line">ceph-deploy admin lab4</span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试</span></span><br><span class="line"><span class="comment"># 存储文件</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">'hello ceph oject storage'</span> &gt; testfile.txt</span><br><span class="line">ceph osd pool create mytest 8</span><br><span class="line">rados put <span class="built_in">test</span>-object-1 testfile.txt --pool=mytest</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看读取文件</span></span><br><span class="line">rados -p mytest ls</span><br><span class="line">rados get <span class="built_in">test</span>-object-1 testfile.txt.1 --pool=mytest</span><br><span class="line">cat testfile.txt.1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看文件位置</span></span><br><span class="line">ceph osd map mytest <span class="built_in">test</span>-object-1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除文件</span></span><br><span class="line">rados rm <span class="built_in">test</span>-object-1 --pool=mytest</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除pool</span></span><br><span class="line">ceph osd pool rm mytest mytest --yes-i-really-really-mean-it</span><br></pre></td></tr></table></figure>
+<h4 id="块存储"><a href="#块存储" class="headerlink" title="块存储"></a>块存储</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装ceph</span></span><br><span class="line">yum install -y ceph</span><br><span class="line"></span><br><span class="line"><span class="comment"># 复制相关文件到要使用ceph-client的机器</span></span><br><span class="line">ceph-deploy admin lab4</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建块设备镜像</span></span><br><span class="line">rbd create foo --size 4096 --image-feature layering</span><br><span class="line">rbd info foo</span><br><span class="line">rados -p rbd ls</span><br><span class="line"></span><br><span class="line"><span class="comment"># 映射镜像到块设备</span></span><br><span class="line">sudo rbd map foo --name client.admin</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用块设备创建文件系统</span></span><br><span class="line">sudo mkfs.ext4 -m0 /dev/rbd/rbd/foo</span><br><span class="line"></span><br><span class="line"><span class="comment"># 挂载使用</span></span><br><span class="line">sudo mkdir /mnt/ceph-block-device</span><br><span class="line">sudo mount /dev/rbd/rbd/foo /mnt/ceph-block-device</span><br><span class="line"><span class="built_in">cd</span> /mnt/ceph-block-device</span><br><span class="line"><span class="built_in">echo</span> <span class="string">'hello ceph block storage'</span> &gt; testfile.txt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清理</span></span><br><span class="line"><span class="built_in">cd</span> ~</span><br><span class="line">sudo umount -lf /mnt/ceph-block-device</span><br><span class="line">sudo rbd unmap foo</span><br><span class="line">rbd remove foo</span><br><span class="line">rados -p rbd ls</span><br></pre></td></tr></table></figure>
+<h4 id="S3对象存储"><a href="#S3对象存储" class="headerlink" title="S3对象存储"></a>S3对象存储</h4><blockquote>
+<p>11.11.11.111 为安装了 RGW 的机器</p>
+</blockquote>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装</span></span><br><span class="line">yum install -y ceph ceph-radosgw</span><br><span class="line"></span><br><span class="line"><span class="comment"># 复制相关文件到要使用ceph-client的机器</span></span><br><span class="line">ceph-deploy admin lab4</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建S3所需要的pool</span></span><br><span class="line">ceph osd pool create .rgw 128 128</span><br><span class="line">ceph osd pool create .rgw.root 128 128</span><br><span class="line">ceph osd pool create .rgw.control 128 128</span><br><span class="line">ceph osd pool create .rgw.gc 128 128</span><br><span class="line">ceph osd pool create .rgw.buckets 128 128</span><br><span class="line">ceph osd pool create .rgw.buckets.index 128 128</span><br><span class="line">ceph osd pool create .rgw.buckets.extra 128 128</span><br><span class="line">ceph osd pool create .<span class="built_in">log</span> 128 128</span><br><span class="line">ceph osd pool create .intent-log 128 128</span><br><span class="line">ceph osd pool create .usage 128 128</span><br><span class="line">ceph osd pool create .users 128 128</span><br><span class="line">ceph osd pool create .users.email 128 128</span><br><span class="line">ceph osd pool create .users.swift 128 128</span><br><span class="line">ceph osd pool create .users.uid 128 128</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看</span></span><br><span class="line">rados lspools</span><br><span class="line"></span><br><span class="line"><span class="comment"># 访问测试</span></span><br><span class="line">curl -I http://11.11.11.111/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建S3用户</span></span><br><span class="line"><span class="comment"># 保存如下命令返回的 user access_key secret_key</span></span><br><span class="line">radosgw-admin user create --uid=foo --display-name=foo --email=foo@foo.com</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建admin用户</span></span><br><span class="line">radosgw-admin user create --uid=admin --display-name=admin</span><br><span class="line"></span><br><span class="line"><span class="comment"># 允许admin读写users信息</span></span><br><span class="line">radosgw-admin caps add --uid=admin --caps=<span class="string">"users=*"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 允许admin读写所有的usage信息</span></span><br><span class="line">radosgw-admin caps add --uid=admin --caps=<span class="string">"usage=read,write"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装s3测试工具</span></span><br><span class="line">yum install -y s3cmd</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置s3cmd, 只需指定Access Key和Secret Key，其他默认即可</span></span><br><span class="line">s3cmd --configure</span><br><span class="line"></span><br><span class="line"><span class="comment"># 修该生成的配置文件</span></span><br><span class="line">vim <span class="variable">$HOME</span>/.s3cfg</span><br><span class="line">host_base = 11.11.11.111</span><br><span class="line">host_bucket = 11.11.11.111/%(bucket)</span><br><span class="line">use_https = False</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建Bucket</span></span><br><span class="line">s3cmd mb s3://mybucket</span><br><span class="line">s3cmd ls</span><br><span class="line"></span><br><span class="line"><span class="comment"># 上传Object</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">'hello ceph block storage s3'</span> &gt; hello.txt</span><br><span class="line">s3cmd put hello.txt s3://mybucket</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看Object</span></span><br><span class="line">s3cmd ls s3://mybucket</span><br><span class="line"></span><br><span class="line"><span class="comment"># 下载Object</span></span><br><span class="line"><span class="built_in">cd</span> /tmp</span><br><span class="line">s3cmd get s3://mybucket/hello.txt</span><br><span class="line"><span class="built_in">cd</span> ~</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除bucket下所有对象</span></span><br><span class="line">s3cmd del -rf s3://mybucket/</span><br><span class="line">s3cmd ls -r s3://mybucket</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除Bucket</span></span><br><span class="line">s3cmd mb s3://mybucket1</span><br><span class="line">s3cmd rb s3://mybucket1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除S3用户</span></span><br><span class="line">radosgw-admin user rm --uid=foo</span><br><span class="line">radosgw-admin user rm --uid=admin</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除pool</span></span><br><span class="line">ceph osd pool delete .rgw .rgw --yes-i-really-really-mean-it</span><br><span class="line">ceph osd pool delete .rgw.root .rgw.root --yes-i-really-really-mean-it</span><br><span class="line">ceph osd pool delete .rgw.control .rgw.control --yes-i-really-really-mean-it</span><br><span class="line">ceph osd pool delete .rgw.gc .rgw.gc --yes-i-really-really-mean-it</span><br><span class="line">ceph osd pool delete .rgw.buckets .rgw.buckets --yes-i-really-really-mean-it</span><br><span class="line">ceph osd pool delete .rgw.buckets.index .rgw.buckets.index --yes-i-really-really-mean-it</span><br><span class="line">ceph osd pool delete .rgw.buckets.extra .rgw.buckets.extra --yes-i-really-really-mean-it</span><br><span class="line">ceph osd pool delete .<span class="built_in">log</span> .<span class="built_in">log</span> --yes-i-really-really-mean-it</span><br><span class="line">ceph osd pool delete .intent-log .intent-log --yes-i-really-really-mean-it</span><br><span class="line">ceph osd pool delete .usage .usage --yes-i-really-really-mean-it</span><br><span class="line">ceph osd pool delete .users .users --yes-i-really-really-mean-it</span><br><span class="line">ceph osd pool delete .users.email .users.email --yes-i-really-really-mean-it</span><br><span class="line">ceph osd pool delete .users.swift .users.swift --yes-i-really-really-mean-it</span><br><span class="line">ceph osd pool delete .users.uid .users.uid --yes-i-really-really-mean-it</span><br></pre></td></tr></table></figure>
+<h4 id="CephFS存储"><a href="#CephFS存储" class="headerlink" title="CephFS存储"></a>CephFS存储</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装ceph</span></span><br><span class="line">yum install -y ceph ceph-fuse</span><br><span class="line"></span><br><span class="line"><span class="comment"># 复制相关文件到要使用ceph-client的机器</span></span><br><span class="line">ceph-deploy admin lab4</span><br><span class="line"></span><br><span class="line"><span class="comment"># CephFS需要使用两个Pool来分别存储数据和元数据</span></span><br><span class="line">ceph osd pool create fs_data 128</span><br><span class="line">ceph osd pool create fs_metadata 128</span><br><span class="line">ceph osd lspools</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建一个CephFS</span></span><br><span class="line">ceph fs new cephfs fs_metadata fs_data</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看</span></span><br><span class="line">ceph fs ls</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用内核提供的功能 挂载CephFS</span></span><br><span class="line"><span class="comment"># 由于可能会有bug，建议使用 4.0 以上的内核</span></span><br><span class="line"><span class="comment"># 优点是性能比使用ceph-fuse更好</span></span><br><span class="line"><span class="comment"># name，secret 为 /etc/ceph/ceph.client.admin.keyring 里的内容</span></span><br><span class="line">mkdir /mnt/mycephfs</span><br><span class="line">mount -t ceph lab1:6789,lab2:6789,lab3:6789:/ /mnt/mycephfs -o name=admin,secret=AQBoclRaiilZJBAACLjqg2OUOOB/FNa20UJXYA==</span><br><span class="line">df -h</span><br><span class="line"><span class="built_in">cd</span> /mnt/mycephfs</span><br><span class="line"><span class="built_in">echo</span> <span class="string">'hello ceph CephFS'</span> &gt; hello.txt</span><br><span class="line"><span class="built_in">cd</span> ~</span><br><span class="line">umount -lf /mnt/mycephfs</span><br><span class="line">rm -rf /mnt/mycephfs</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用 ceph-fuse 挂载CephFS</span></span><br><span class="line">mkdir /mnt/mycephfs</span><br><span class="line">ceph-fuse -m lab1:6789 /mnt/mycephfs</span><br><span class="line">df -h</span><br><span class="line"><span class="built_in">cd</span> /mnt/mycephfs</span><br><span class="line"><span class="built_in">echo</span> <span class="string">'hello ceph CephFS'</span> &gt; hello.txt</span><br><span class="line"><span class="built_in">cd</span> ~</span><br><span class="line">umount -lf /mnt/mycephfs</span><br><span class="line">rm -rf /mnt/mycephfs</span><br><span class="line"></span><br><span class="line"><span class="comment"># 清理</span></span><br><span class="line"><span class="comment"># 停止 metadata server</span></span><br><span class="line"><span class="comment"># 本次部署在lab1，去lab1停止服务</span></span><br><span class="line">systemctl stop ceph-mds@lab1</span><br><span class="line">ceph fs rm cephfs --yes-i-really-mean-it</span><br><span class="line">ceph osd pool delete fs_data fs_data --yes-i-really-really-mean-it</span><br><span class="line">ceph osd pool delete fs_metadata fs_metadata --yes-i-really-really-mean-it</span><br><span class="line"></span><br><span class="line"><span class="comment"># 开启 metadata server</span></span><br><span class="line"><span class="comment"># 方便以后使用 cephfs</span></span><br><span class="line">systemctl start ceph-mds@lab1</span><br></pre></td></tr></table></figure>
+<h3 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h3><ul>
+<li><a href="http://docs.ceph.com/docs/master/cephfs/best-practices/" target="_blank" rel="noopener">http://docs.ceph.com/docs/master/cephfs/best-practices/</a></li>
+<li><a href="http://docs.ceph.com/docs/master/start/" target="_blank" rel="noopener">http://docs.ceph.com/docs/master/start/</a></li>
+<li><a href="http://docs.ceph.org.cn/start/" target="_blank" rel="noopener">http://docs.ceph.org.cn/start/</a></li>
+<li><a href="http://docs.ceph.com/docs/master/start/quick-rbd/" target="_blank" rel="noopener">http://docs.ceph.com/docs/master/start/quick-rbd/</a></li>
+<li><a href="http://www.xuxiaopang.com/2016/10/13/easy-ceph-RBD/" target="_blank" rel="noopener">http://www.xuxiaopang.com/2016/10/13/easy-ceph-RBD/</a></li>
+<li><a href="http://docs.ceph.com/docs/master/start/quick-rgw/" target="_blank" rel="noopener">http://docs.ceph.com/docs/master/start/quick-rgw/</a></li>
+<li><a href="https://blog.frognew.com/tags/ceph.html" target="_blank" rel="noopener">https://blog.frognew.com/tags/ceph.html</a></li>
+<li><a href="https://www.centos.bz/2017/10/%E7%94%A8ceph-deploy%E5%AE%89%E8%A3%85ceph%E5%B9%B6%E9%83%A8%E7%BD%B2%E9%9B%86%E7%BE%A4/" target="_blank" rel="noopener">https://www.centos.bz/2017/10/%E7%94%A8ceph-deploy%E5%AE%89%E8%A3%85ceph%E5%B9%B6%E9%83%A8%E7%BD%B2%E9%9B%86%E7%BE%A4/</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/ceph/" rel="tag"># ceph</a>
+          
+            <a href="/tags/storage/" rel="tag"># storage</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/posts/46/" rel="next" title="istio-1.0微服务实验">
+                <i class="fa fa-chevron-left"></i> istio-1.0微服务实验
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/posts/48/" rel="prev" title="k8s使用ceph实现动态持久化存储">
+                k8s使用ceph实现动态持久化存储 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="mgxian" />
+          <p class="site-author-name" itemprop="name">mgxian</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/mgxian" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#部署"><span class="nav-number">2.</span> <span class="nav-text">部署</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#实验环境的Vagrantfile"><span class="nav-number">2.1.</span> <span class="nav-text">实验环境的Vagrantfile</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置阿里ceph源"><span class="nav-number">2.2.</span> <span class="nav-text">配置阿里ceph源</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#在admin节点安装ceph-deploy"><span class="nav-number">2.3.</span> <span class="nav-text">在admin节点安装ceph-deploy</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置admin节点连接node节点"><span class="nav-number">2.4.</span> <span class="nav-text">配置admin节点连接node节点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#在admin节点创建集群"><span class="nav-number">2.5.</span> <span class="nav-text">在admin节点创建集群</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#清理集群"><span class="nav-number">2.6.</span> <span class="nav-text">清理集群</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#扩展集群"><span class="nav-number">3.</span> <span class="nav-text">扩展集群</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#提高可用性"><span class="nav-number">3.1.</span> <span class="nav-text">提高可用性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#部署RGW使用Ceph-Object-Gateway"><span class="nav-number">3.2.</span> <span class="nav-text">部署RGW使用Ceph Object Gateway</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用ceph存储"><span class="nav-number">4.</span> <span class="nav-text">使用ceph存储</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#对象存储"><span class="nav-number">4.1.</span> <span class="nav-text">对象存储</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#块存储"><span class="nav-number">4.2.</span> <span class="nav-text">块存储</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#S3对象存储"><span class="nav-number">4.3.</span> <span class="nav-text">S3对象存储</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CephFS存储"><span class="nav-number">4.4.</span> <span class="nav-text">CephFS存储</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考文档"><span class="nav-number">5.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">mgxian</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("iQlP5L75WVCE1k0dTxnzi15B-gzGzoHsz", "vLlwNDAYowJRpNIfirPwn8Cy");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1244 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="docker,k8s,storage," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="简介本文章介绍如何使用ceph为k8s提供动态申请pv的功能。ceph提供底层存储功能，cephfs方式支持k8s的pv的3种访问模式ReadWriteOnce，ReadOnlyMany ，ReadWriteMany ，RBD支持ReadWriteOnce，ReadOnlyMany两种模式">
+<meta name="keywords" content="docker,k8s,storage">
+<meta property="og:type" content="article">
+<meta property="og:title" content="k8s使用ceph实现动态持久化存储">
+<meta property="og:url" content="https://mgxian.dev/posts/48/index.html">
+<meta property="og:site_name" content="mgxian&#39;s blog">
+<meta property="og:description" content="简介本文章介绍如何使用ceph为k8s提供动态申请pv的功能。ceph提供底层存储功能，cephfs方式支持k8s的pv的3种访问模式ReadWriteOnce，ReadOnlyMany ，ReadWriteMany ，RBD支持ReadWriteOnce，ReadOnlyMany两种模式">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-08-26T02:36:09.468Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="k8s使用ceph实现动态持久化存储">
+<meta name="twitter:description" content="简介本文章介绍如何使用ceph为k8s提供动态申请pv的功能。ceph提供底层存储功能，cephfs方式支持k8s的pv的3种访问模式ReadWriteOnce，ReadOnlyMany ，ReadWriteMany ，RBD支持ReadWriteOnce，ReadOnlyMany两种模式">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://mgxian.dev/posts/48/"/>
+
+
+
+
+
+  <title>k8s使用ceph实现动态持久化存储 | mgxian's blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">mgxian's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://mgxian.dev/posts/48/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="mgxian">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="mgxian's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">k8s使用ceph实现动态持久化存储</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-17T14:14:56+08:00">
+                2018-08-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/运维/" itemprop="url" rel="index">
+                    <span itemprop="name">运维</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/posts/48/" class="leancloud_visitors" data-flag-title="k8s使用ceph实现动态持久化存储">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>本文章介绍如何使用ceph为k8s提供动态申请pv的功能。ceph提供底层存储功能，cephfs方式支持k8s的pv的3种访问模式<code>ReadWriteOnce，ReadOnlyMany ，ReadWriteMany</code> ，RBD支持<code>ReadWriteOnce，ReadOnlyMany</code>两种模式<br><a id="more"></a><br>访问模式只是能力描述，并不是强制执行的，对于没有按pvc声明的方式使用pv，存储提供者应该负责访问时的运行错误。例如如果设置pvc的访问模式为<code>ReadOnlyMany</code> ，pod挂载后依然可写，如果需要真正的不可写，申请pvc是需要指定 <code>readOnly: true</code> 参数</p>
+<h3 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h3><h4 id="部署k8s"><a href="#部署k8s" class="headerlink" title="部署k8s"></a>部署k8s</h4><p><a href="/posts/32/">centos7使用kubeadm安装k8s-1.11版本</a></p>
+<h4 id="部署ceph"><a href="#部署ceph" class="headerlink" title="部署ceph"></a>部署ceph</h4><p><a href="/posts/47/">centos7安装ceph分布式存储集群</a></p>
+<h3 id="在k8s集群中配置使用ceph"><a href="#在k8s集群中配置使用ceph" class="headerlink" title="在k8s集群中配置使用ceph"></a>在k8s集群中配置使用ceph</h3><h4 id="使用Ceph-RBD"><a href="#使用Ceph-RBD" class="headerlink" title="使用Ceph RBD"></a>使用Ceph RBD</h4><h5 id="使用kubeadm安装集群的额外配置"><a href="#使用kubeadm安装集群的额外配置" class="headerlink" title="使用kubeadm安装集群的额外配置"></a>使用kubeadm安装集群的额外配置</h5><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 如果使用kubeadm部署的集群需要这些额外的步骤</span></span><br><span class="line"><span class="comment"># 由于使用动态存储时 controller-manager 需要使用 rbd 命令创建 image</span></span><br><span class="line"><span class="comment"># 所以 controller-manager 需要使用 rbd 命令</span></span><br><span class="line"><span class="comment"># 由于官方controller-manager镜像里没有rbd命令</span></span><br><span class="line"><span class="comment"># 如果没使用如下方式会报错无法成功创建pvc</span></span><br><span class="line"><span class="comment"># 相关 issue https://github.com/kubernetes/kubernetes/issues/38923</span></span><br><span class="line">cat &gt;external-storage-rbd-provisioner.yaml&lt;&lt;EOF</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: ServiceAccount</span><br><span class="line">metadata:</span><br><span class="line">  name: rbd-provisioner</span><br><span class="line">  namespace: kube-system</span><br><span class="line">---</span><br><span class="line">kind: ClusterRole</span><br><span class="line">apiVersion: rbac.authorization.k8s.io/v1</span><br><span class="line">metadata:</span><br><span class="line">  name: rbd-provisioner</span><br><span class="line">rules:</span><br><span class="line">  - apiGroups: [<span class="string">""</span>]</span><br><span class="line">    resources: [<span class="string">"persistentvolumes"</span>]</span><br><span class="line">    verbs: [<span class="string">"get"</span>, <span class="string">"list"</span>, <span class="string">"watch"</span>, <span class="string">"create"</span>, <span class="string">"delete"</span>]</span><br><span class="line">  - apiGroups: [<span class="string">""</span>]</span><br><span class="line">    resources: [<span class="string">"persistentvolumeclaims"</span>]</span><br><span class="line">    verbs: [<span class="string">"get"</span>, <span class="string">"list"</span>, <span class="string">"watch"</span>, <span class="string">"update"</span>]</span><br><span class="line">  - apiGroups: [<span class="string">"storage.k8s.io"</span>]</span><br><span class="line">    resources: [<span class="string">"storageclasses"</span>]</span><br><span class="line">    verbs: [<span class="string">"get"</span>, <span class="string">"list"</span>, <span class="string">"watch"</span>]</span><br><span class="line">  - apiGroups: [<span class="string">""</span>]</span><br><span class="line">    resources: [<span class="string">"events"</span>]</span><br><span class="line">    verbs: [<span class="string">"create"</span>, <span class="string">"update"</span>, <span class="string">"patch"</span>]</span><br><span class="line">  - apiGroups: [<span class="string">""</span>]</span><br><span class="line">    resources: [<span class="string">"endpoints"</span>]</span><br><span class="line">    verbs: [<span class="string">"get"</span>, <span class="string">"list"</span>, <span class="string">"watch"</span>, <span class="string">"create"</span>, <span class="string">"update"</span>, <span class="string">"patch"</span>]</span><br><span class="line">  - apiGroups: [<span class="string">""</span>]</span><br><span class="line">    resources: [<span class="string">"services"</span>]</span><br><span class="line">    resourceNames: [<span class="string">"kube-dns"</span>]</span><br><span class="line">    verbs: [<span class="string">"list"</span>, <span class="string">"get"</span>]</span><br><span class="line">---</span><br><span class="line">kind: ClusterRoleBinding</span><br><span class="line">apiVersion: rbac.authorization.k8s.io/v1</span><br><span class="line">metadata:</span><br><span class="line">  name: rbd-provisioner</span><br><span class="line">subjects:</span><br><span class="line">  - kind: ServiceAccount</span><br><span class="line">    name: rbd-provisioner</span><br><span class="line">    namespace: kube-system</span><br><span class="line">roleRef:</span><br><span class="line">  kind: ClusterRole</span><br><span class="line">  name: rbd-provisioner</span><br><span class="line">  apiGroup: rbac.authorization.k8s.io</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line">apiVersion: rbac.authorization.k8s.io/v1</span><br><span class="line">kind: Role</span><br><span class="line">metadata:</span><br><span class="line">  name: rbd-provisioner</span><br><span class="line">  namespace: kube-system</span><br><span class="line">rules:</span><br><span class="line">- apiGroups: [<span class="string">""</span>]</span><br><span class="line">  resources: [<span class="string">"secrets"</span>]</span><br><span class="line">  verbs: [<span class="string">"get"</span>]</span><br><span class="line">---</span><br><span class="line">apiVersion: rbac.authorization.k8s.io/v1</span><br><span class="line">kind: RoleBinding</span><br><span class="line">metadata:</span><br><span class="line">  name: rbd-provisioner</span><br><span class="line">  namespace: kube-system</span><br><span class="line">roleRef:</span><br><span class="line">  apiGroup: rbac.authorization.k8s.io</span><br><span class="line">  kind: Role</span><br><span class="line">  name: rbd-provisioner</span><br><span class="line">subjects:</span><br><span class="line">- kind: ServiceAccount</span><br><span class="line">  name: rbd-provisioner</span><br><span class="line">  namespace: kube-system</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line">apiVersion: extensions/v1beta1</span><br><span class="line">kind: Deployment</span><br><span class="line">metadata:</span><br><span class="line">  name: rbd-provisioner</span><br><span class="line">  namespace: kube-system</span><br><span class="line">spec:</span><br><span class="line">  replicas: 1</span><br><span class="line">  strategy:</span><br><span class="line">    <span class="built_in">type</span>: Recreate</span><br><span class="line">  template:</span><br><span class="line">    metadata:</span><br><span class="line">      labels:</span><br><span class="line">        app: rbd-provisioner</span><br><span class="line">    spec:</span><br><span class="line">      containers:</span><br><span class="line">      - name: rbd-provisioner</span><br><span class="line">        image: <span class="string">"quay.io/external_storage/rbd-provisioner:v2.1.1-k8s1.11"</span></span><br><span class="line">        env:</span><br><span class="line">        - name: PROVISIONER_NAME</span><br><span class="line">          value: ceph.com/rbd</span><br><span class="line">      serviceAccount: rbd-provisioner</span><br><span class="line">EOF</span><br><span class="line">kubectl apply -f external-storage-rbd-provisioner.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看状态 等待running之后 再进行后续的操作</span></span><br><span class="line">kubectl get pod -n kube-system</span><br></pre></td></tr></table></figure>
+<h5 id="配置-storageclass"><a href="#配置-storageclass" class="headerlink" title="配置 storageclass"></a>配置 storageclass</h5><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在k8s集群中所有节点安装 ceph-common</span></span><br><span class="line"><span class="comment"># 需要使用kubelet使用rdb命令map附加rbd创建的image</span></span><br><span class="line">yum install -y ceph-common</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建 osd pool 在ceph的mon或者admin节点</span></span><br><span class="line">ceph osd pool create kube 4096</span><br><span class="line">ceph osd pool ls</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建k8s访问ceph的用户 在ceph的mon或者admin节点</span></span><br><span class="line">ceph auth get-or-create client.kube mon <span class="string">'allow r'</span> osd <span class="string">'allow class-read object_prefix rbd_children, allow rwx pool=kube'</span> -o ceph.client.kube.keyring</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看key 在ceph的mon或者admin节点</span></span><br><span class="line">ceph auth get-key client.admin</span><br><span class="line">ceph auth get-key client.kube</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建 admin secret</span></span><br><span class="line"><span class="comment"># CEPH_ADMIN_SECRET 替换为 client.admin 获取到的key</span></span><br><span class="line"><span class="built_in">export</span> CEPH_ADMIN_SECRET=<span class="string">'AQBBAnRbSiSOFxAAEZXNMzYV6hsceccYLhzdWw=='</span></span><br><span class="line">kubectl create secret generic ceph-secret --<span class="built_in">type</span>=<span class="string">"kubernetes.io/rbd"</span> \</span><br><span class="line">--from-literal=key=<span class="variable">$CEPH_ADMIN_SECRET</span> \</span><br><span class="line">--namespace=kube-system</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在 default 命名空间创建pvc用于访问ceph的 secret</span></span><br><span class="line"><span class="comment"># CEPH_KUBE_SECRET 替换为 client.kube 获取到的key</span></span><br><span class="line"><span class="built_in">export</span> CEPH_KUBE_SECRET=<span class="string">'AQBZK3VbTN/QOBAAIYi6CRLQcVevW5HM8lunOg=='</span></span><br><span class="line">kubectl create secret generic ceph-user-secret --<span class="built_in">type</span>=<span class="string">"kubernetes.io/rbd"</span> \</span><br><span class="line">--from-literal=key=<span class="variable">$CEPH_KUBE_SECRET</span> \</span><br><span class="line">--namespace=default</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看 secret</span></span><br><span class="line">kubectl get secret ceph-user-secret -o yaml</span><br><span class="line">kubectl get secret ceph-secret -n kube-system -o yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置 StorageClass</span></span><br><span class="line"><span class="comment"># 如果使用kubeadm创建的集群 provisioner 使用如下方式</span></span><br><span class="line"><span class="comment"># provisioner: ceph.com/rbd</span></span><br><span class="line">cat &gt;storageclass-ceph-rdb.yaml&lt;&lt;EOF</span><br><span class="line">kind: StorageClass</span><br><span class="line">apiVersion: storage.k8s.io/v1</span><br><span class="line">metadata:</span><br><span class="line">  name: dynamic-ceph-rdb</span><br><span class="line">provisioner: ceph.com/rbd</span><br><span class="line"><span class="comment"># provisioner: kubernetes.io/rbd</span></span><br><span class="line">parameters:</span><br><span class="line">  monitors: 11.11.11.111:6789,11.11.11.112:6789,11.11.11.113:6789</span><br><span class="line">  adminId: admin</span><br><span class="line">  adminSecretName: ceph-secret</span><br><span class="line">  adminSecretNamespace: kube-system</span><br><span class="line">  pool: kube</span><br><span class="line">  userId: kube</span><br><span class="line">  userSecretName: ceph-user-secret</span><br><span class="line">  fsType: ext4</span><br><span class="line">  imageFormat: <span class="string">"2"</span></span><br><span class="line">  imageFeatures: <span class="string">"layering"</span></span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建</span></span><br><span class="line">kubectl apply -f storageclass-ceph-rdb.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看</span></span><br><span class="line">kubectl get sc</span><br></pre></td></tr></table></figure>
+<h5 id="测试使用"><a href="#测试使用" class="headerlink" title="测试使用"></a>测试使用</h5><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建pvc测试</span></span><br><span class="line">cat &gt;ceph-rdb-pvc-test.yaml&lt;&lt;EOF</span><br><span class="line">kind: PersistentVolumeClaim</span><br><span class="line">apiVersion: v1</span><br><span class="line">metadata:</span><br><span class="line">  name: ceph-rdb-claim</span><br><span class="line">spec:</span><br><span class="line">  accessModes:     </span><br><span class="line">    - ReadWriteOnce</span><br><span class="line">  storageClassName: dynamic-ceph-rdb</span><br><span class="line">  resources:</span><br><span class="line">    requests:</span><br><span class="line">      storage: 2Gi</span><br><span class="line">EOF</span><br><span class="line">kubectl apply -f ceph-rdb-pvc-test.yaml</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 查看</span></span><br><span class="line">kubectl get pvc</span><br><span class="line">kubectl get pv</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 创建 nginx pod 挂载测试</span></span><br><span class="line">cat &gt;nginx-pod.yaml&lt;&lt;EOF</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: Pod</span><br><span class="line">metadata:</span><br><span class="line">  name: nginx-pod1</span><br><span class="line">  labels:</span><br><span class="line">    name: nginx-pod1</span><br><span class="line">spec:</span><br><span class="line">  containers:</span><br><span class="line">  - name: nginx-pod1</span><br><span class="line">    image: nginx:alpine</span><br><span class="line">    ports:</span><br><span class="line">    - name: web</span><br><span class="line">      containerPort: 80</span><br><span class="line">    volumeMounts:</span><br><span class="line">    - name: ceph-rdb</span><br><span class="line">      mountPath: /usr/share/nginx/html</span><br><span class="line">  volumes:</span><br><span class="line">  - name: ceph-rdb</span><br><span class="line">    persistentVolumeClaim:</span><br><span class="line">      claimName: ceph-rdb-claim</span><br><span class="line">EOF</span><br><span class="line">kubectl apply -f nginx-pod.yaml</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 查看</span></span><br><span class="line">kubectl get pods -o wide</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 修改文件内容</span></span><br><span class="line">kubectl <span class="built_in">exec</span> -ti nginx-pod1 -- /bin/sh -c <span class="string">'echo Hello World from Ceph RBD!!! &gt; /usr/share/nginx/html/index.html'</span></span><br><span class="line"> </span><br><span class="line"><span class="comment"># 访问测试</span></span><br><span class="line">POD_ID=$(kubectl get pods -o wide | grep nginx-pod1 | awk <span class="string">'&#123;print $(NF-1)&#125;'</span>)</span><br><span class="line">curl http://<span class="variable">$POD_ID</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 清理</span></span><br><span class="line">kubectl delete -f nginx-pod.yaml</span><br><span class="line">kubectl delete -f ceph-rdb-pvc-test.yaml</span><br></pre></td></tr></table></figure>
+<h4 id="使用-CephFS"><a href="#使用-CephFS" class="headerlink" title="使用 CephFS"></a>使用 CephFS</h4><blockquote>
+<p>linux内核需要4.10+，否则会出现无法正常使用的问题，详细issue信息 <a href="https://github.com/kubernetes-incubator/external-storage/issues/345" target="_blank" rel="noopener">https://github.com/kubernetes-incubator/external-storage/issues/345</a><br>  <a href="/posts/49/">centos7升级内核</a></p>
+</blockquote>
+<h5 id="在ceph集群创建CephFS"><a href="#在ceph集群创建CephFS" class="headerlink" title="在ceph集群创建CephFS"></a>在ceph集群创建CephFS</h5><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 如下操作在ceph的mon或者admin节点</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># CephFS需要使用两个Pool来分别存储数据和元数据</span></span><br><span class="line">ceph osd pool create fs_data 128</span><br><span class="line">ceph osd pool create fs_metadata 128</span><br><span class="line">ceph osd lspools</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建一个CephFS</span></span><br><span class="line">ceph fs new cephfs fs_metadata fs_data</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看</span></span><br><span class="line">ceph fs ls</span><br></pre></td></tr></table></figure>
+<h5 id="部署cephfs-provisioner"><a href="#部署cephfs-provisioner" class="headerlink" title="部署cephfs-provisioner"></a>部署cephfs-provisioner</h5><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 官方没有cephfs动态卷支持</span></span><br><span class="line"><span class="comment"># 使用社区提供的cephfs-provisioner</span></span><br><span class="line">cat &gt;external-storage-cephfs-provisioner.yaml&lt;&lt;EOF</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: ServiceAccount</span><br><span class="line">metadata:</span><br><span class="line">  name: cephfs-provisioner</span><br><span class="line">  namespace: kube-system</span><br><span class="line">---</span><br><span class="line">kind: ClusterRole</span><br><span class="line">apiVersion: rbac.authorization.k8s.io/v1</span><br><span class="line">metadata:</span><br><span class="line">  name: cephfs-provisioner</span><br><span class="line">rules:</span><br><span class="line">  - apiGroups: [<span class="string">""</span>]</span><br><span class="line">    resources: [<span class="string">"persistentvolumes"</span>]</span><br><span class="line">    verbs: [<span class="string">"get"</span>, <span class="string">"list"</span>, <span class="string">"watch"</span>, <span class="string">"create"</span>, <span class="string">"delete"</span>]</span><br><span class="line">  - apiGroups: [<span class="string">""</span>]</span><br><span class="line">    resources: [<span class="string">"persistentvolumeclaims"</span>]</span><br><span class="line">    verbs: [<span class="string">"get"</span>, <span class="string">"list"</span>, <span class="string">"watch"</span>, <span class="string">"update"</span>]</span><br><span class="line">  - apiGroups: [<span class="string">"storage.k8s.io"</span>]</span><br><span class="line">    resources: [<span class="string">"storageclasses"</span>]</span><br><span class="line">    verbs: [<span class="string">"get"</span>, <span class="string">"list"</span>, <span class="string">"watch"</span>]</span><br><span class="line">  - apiGroups: [<span class="string">""</span>]</span><br><span class="line">    resources: [<span class="string">"events"</span>]</span><br><span class="line">    verbs: [<span class="string">"create"</span>, <span class="string">"update"</span>, <span class="string">"patch"</span>]</span><br><span class="line">  - apiGroups: [<span class="string">""</span>]</span><br><span class="line">    resources: [<span class="string">"endpoints"</span>]</span><br><span class="line">    verbs: [<span class="string">"get"</span>, <span class="string">"list"</span>, <span class="string">"watch"</span>, <span class="string">"create"</span>, <span class="string">"update"</span>, <span class="string">"patch"</span>]</span><br><span class="line">  - apiGroups: [<span class="string">""</span>]</span><br><span class="line">    resources: [<span class="string">"secrets"</span>]</span><br><span class="line">    verbs: [<span class="string">"create"</span>, <span class="string">"get"</span>, <span class="string">"delete"</span>]</span><br><span class="line">---</span><br><span class="line">kind: ClusterRoleBinding</span><br><span class="line">apiVersion: rbac.authorization.k8s.io/v1</span><br><span class="line">metadata:</span><br><span class="line">  name: cephfs-provisioner</span><br><span class="line">subjects:</span><br><span class="line">  - kind: ServiceAccount</span><br><span class="line">    name: cephfs-provisioner</span><br><span class="line">    namespace: kube-system</span><br><span class="line">roleRef:</span><br><span class="line">  kind: ClusterRole</span><br><span class="line">  name: cephfs-provisioner</span><br><span class="line">  apiGroup: rbac.authorization.k8s.io</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line">apiVersion: rbac.authorization.k8s.io/v1</span><br><span class="line">kind: Role</span><br><span class="line">metadata:</span><br><span class="line">  name: cephfs-provisioner</span><br><span class="line">  namespace: kube-system</span><br><span class="line">rules:</span><br><span class="line">  - apiGroups: [<span class="string">""</span>]</span><br><span class="line">    resources: [<span class="string">"secrets"</span>]</span><br><span class="line">    verbs: [<span class="string">"create"</span>, <span class="string">"get"</span>, <span class="string">"delete"</span>]</span><br><span class="line">---</span><br><span class="line">apiVersion: rbac.authorization.k8s.io/v1</span><br><span class="line">kind: RoleBinding</span><br><span class="line">metadata:</span><br><span class="line">  name: cephfs-provisioner</span><br><span class="line">  namespace: kube-system</span><br><span class="line">roleRef:</span><br><span class="line">  apiGroup: rbac.authorization.k8s.io</span><br><span class="line">  kind: Role</span><br><span class="line">  name: cephfs-provisioner</span><br><span class="line">subjects:</span><br><span class="line">- kind: ServiceAccount</span><br><span class="line">  name: cephfs-provisioner</span><br><span class="line">  namespace: kube-system</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line">apiVersion: extensions/v1beta1</span><br><span class="line">kind: Deployment</span><br><span class="line">metadata:</span><br><span class="line">  name: cephfs-provisioner</span><br><span class="line">  namespace: kube-system</span><br><span class="line">spec:</span><br><span class="line">  replicas: 1</span><br><span class="line">  strategy:</span><br><span class="line">    <span class="built_in">type</span>: Recreate</span><br><span class="line">  template:</span><br><span class="line">    metadata:</span><br><span class="line">      labels:</span><br><span class="line">        app: cephfs-provisioner</span><br><span class="line">    spec:</span><br><span class="line">      containers:</span><br><span class="line">      - name: cephfs-provisioner</span><br><span class="line">        image: <span class="string">"quay.io/external_storage/cephfs-provisioner:v2.0.0-k8s1.11"</span></span><br><span class="line">        env:</span><br><span class="line">        - name: PROVISIONER_NAME</span><br><span class="line">          value: ceph.com/cephfs</span><br><span class="line">        <span class="built_in">command</span>:</span><br><span class="line">        - <span class="string">"/usr/local/bin/cephfs-provisioner"</span></span><br><span class="line">        args:</span><br><span class="line">        - <span class="string">"-id=cephfs-provisioner-1"</span></span><br><span class="line">      serviceAccount: cephfs-provisioner</span><br><span class="line">EOF</span><br><span class="line">kubectl apply -f external-storage-cephfs-provisioner.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看状态 等待running之后 再进行后续的操作</span></span><br><span class="line">kubectl get pod -n kube-system</span><br></pre></td></tr></table></figure>
+<p>#####配置 storageclass</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看key 在ceph的mon或者admin节点</span></span><br><span class="line">ceph auth get-key client.admin</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建 admin secret</span></span><br><span class="line"><span class="comment"># CEPH_ADMIN_SECRET 替换为 client.admin 获取到的key</span></span><br><span class="line"><span class="comment"># 如果在测试 ceph rbd 方式已经添加 可以略过此步骤</span></span><br><span class="line"><span class="built_in">export</span> CEPH_ADMIN_SECRET=<span class="string">'AQBBAnRbSiSOFxAAEZXNMzYV6hsceccYLhzdWw=='</span></span><br><span class="line">kubectl create secret generic ceph-secret --<span class="built_in">type</span>=<span class="string">"kubernetes.io/rbd"</span> \</span><br><span class="line">--from-literal=key=<span class="variable">$CEPH_ADMIN_SECRET</span> \</span><br><span class="line">--namespace=kube-system</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看 secret</span></span><br><span class="line">kubectl get secret ceph-secret -n kube-system -o yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置 StorageClass</span></span><br><span class="line">cat &gt;storageclass-cephfs.yaml&lt;&lt;EOF</span><br><span class="line">kind: StorageClass</span><br><span class="line">apiVersion: storage.k8s.io/v1</span><br><span class="line">metadata:</span><br><span class="line">  name: dynamic-cephfs</span><br><span class="line">provisioner: ceph.com/cephfs</span><br><span class="line">parameters:</span><br><span class="line">    monitors: 11.11.11.111:6789,11.11.11.112:6789,11.11.11.113:6789</span><br><span class="line">    adminId: admin</span><br><span class="line">    adminSecretName: ceph-secret</span><br><span class="line">    adminSecretNamespace: <span class="string">"kube-system"</span></span><br><span class="line">    claimRoot: /volumes/kubernetes</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建</span></span><br><span class="line">kubectl apply -f storageclass-cephfs.yaml</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看</span></span><br><span class="line">kubectl get sc</span><br></pre></td></tr></table></figure>
+<h5 id="测试使用-1"><a href="#测试使用-1" class="headerlink" title="测试使用"></a>测试使用</h5><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建pvc测试</span></span><br><span class="line">cat &gt;cephfs-pvc-test.yaml&lt;&lt;EOF</span><br><span class="line">kind: PersistentVolumeClaim</span><br><span class="line">apiVersion: v1</span><br><span class="line">metadata:</span><br><span class="line">  name: cephfs-claim</span><br><span class="line">spec:</span><br><span class="line">  accessModes:     </span><br><span class="line">    - ReadWriteOnce</span><br><span class="line">  storageClassName: dynamic-cephfs</span><br><span class="line">  resources:</span><br><span class="line">    requests:</span><br><span class="line">      storage: 2Gi</span><br><span class="line">EOF</span><br><span class="line">kubectl apply -f cephfs-pvc-test.yaml</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 查看</span></span><br><span class="line">kubectl get pvc</span><br><span class="line">kubectl get pv</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 创建 nginx pod 挂载测试</span></span><br><span class="line">cat &gt;nginx-pod.yaml&lt;&lt;EOF</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: Pod</span><br><span class="line">metadata:</span><br><span class="line">  name: nginx-pod1</span><br><span class="line">  labels:</span><br><span class="line">    name: nginx-pod1</span><br><span class="line">spec:</span><br><span class="line">  containers:</span><br><span class="line">  - name: nginx-pod1</span><br><span class="line">    image: nginx:alpine</span><br><span class="line">    ports:</span><br><span class="line">    - name: web</span><br><span class="line">      containerPort: 80</span><br><span class="line">    volumeMounts:</span><br><span class="line">    - name: cephfs</span><br><span class="line">      mountPath: /usr/share/nginx/html</span><br><span class="line">  volumes:</span><br><span class="line">  - name: cephfs</span><br><span class="line">    persistentVolumeClaim:</span><br><span class="line">      claimName: cephfs-claim</span><br><span class="line">EOF</span><br><span class="line">kubectl apply -f nginx-pod.yaml</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 查看</span></span><br><span class="line">kubectl get pods -o wide</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 修改文件内容</span></span><br><span class="line">kubectl <span class="built_in">exec</span> -ti nginx-pod1 -- /bin/sh -c <span class="string">'echo Hello World from CephFS!!! &gt; /usr/share/nginx/html/index.html'</span></span><br><span class="line"> </span><br><span class="line"><span class="comment"># 访问测试</span></span><br><span class="line">POD_ID=$(kubectl get pods -o wide | grep nginx-pod1 | awk <span class="string">'&#123;print $(NF-1)&#125;'</span>)</span><br><span class="line">curl http://<span class="variable">$POD_ID</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 清理</span></span><br><span class="line">kubectl delete -f nginx-pod.yaml</span><br><span class="line">kubectl delete -f cephfs-pvc-test.yaml</span><br></pre></td></tr></table></figure>
+<h3 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h3><ul>
+<li><a href="https://kubernetes.io/docs/concepts/storage/storage-classes/" target="_blank" rel="noopener">https://kubernetes.io/docs/concepts/storage/storage-classes/</a></li>
+<li><a href="https://docs.openshift.com/container-platform/3.5/install_config/storage_examples/ceph_rbd_dynamic_example.html" target="_blank" rel="noopener">https://docs.openshift.com/container-platform/3.5/install_config/storage_examples/ceph_rbd_dynamic_example.html</a></li>
+<li><a href="https://ieevee.com/tech/2018/05/17/k8s-cephfs.html" target="_blank" rel="noopener">https://ieevee.com/tech/2018/05/17/k8s-cephfs.html</a></li>
+<li><a href="https://github.com/kubernetes-incubator/external-storage/tree/master/ceph/rbd" target="_blank" rel="noopener">https://github.com/kubernetes-incubator/external-storage/tree/master/ceph/rbd</a></li>
+<li><a href="https://github.com/kubernetes-incubator/external-storage/blob/master/ceph/rbd/deploy/README.md" target="_blank" rel="noopener">https://github.com/kubernetes-incubator/external-storage/blob/master/ceph/rbd/deploy/README.md</a></li>
+<li><a href="https://github.com/heketi/heketi/blob/master/docs/admin/install-kubernetes.md" target="_blank" rel="noopener">https://github.com/heketi/heketi/blob/master/docs/admin/install-kubernetes.md</a></li>
+<li><a href="https://github.com/gluster/gluster-kubernetes/blob/master/docs/setup-guide.md" target="_blank" rel="noopener">https://github.com/gluster/gluster-kubernetes/blob/master/docs/setup-guide.md</a></li>
+<li><a href="https://github.com/gluster/gluster-kubernetes/blob/master/docs/examples/hello_world/README.md" target="_blank" rel="noopener">https://github.com/gluster/gluster-kubernetes/blob/master/docs/examples/hello_world/README.md</a></li>
+<li><a href="https://jimmysong.io/kubernetes-handbook/practice/using-heketi-gluster-for-persistent-storage.html" target="_blank" rel="noopener">https://jimmysong.io/kubernetes-handbook/practice/using-heketi-gluster-for-persistent-storage.html</a></li>
+<li><a href="https://kubernetes.io/docs/concepts/storage/persistent-volumes/" target="_blank" rel="noopener">https://kubernetes.io/docs/concepts/storage/persistent-volumes/</a></li>
+<li><a href="https://docs.openshift.com/enterprise/3.1/architecture/additional_concepts/storage.html#pv-access-modes" target="_blank" rel="noopener">https://docs.openshift.com/enterprise/3.1/architecture/additional_concepts/storage.html#pv-access-modes</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/docker/" rel="tag"># docker</a>
+          
+            <a href="/tags/k8s/" rel="tag"># k8s</a>
+          
+            <a href="/tags/storage/" rel="tag"># storage</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/posts/47/" rel="next" title="ceph安装配置">
+                <i class="fa fa-chevron-left"></i> ceph安装配置
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/posts/49/" rel="prev" title="centos7升级内核">
+                centos7升级内核 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="mgxian" />
+          <p class="site-author-name" itemprop="name">mgxian</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/mgxian" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#部署"><span class="nav-number">2.</span> <span class="nav-text">部署</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#部署k8s"><span class="nav-number">2.1.</span> <span class="nav-text">部署k8s</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#部署ceph"><span class="nav-number">2.2.</span> <span class="nav-text">部署ceph</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#在k8s集群中配置使用ceph"><span class="nav-number">3.</span> <span class="nav-text">在k8s集群中配置使用ceph</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#使用Ceph-RBD"><span class="nav-number">3.1.</span> <span class="nav-text">使用Ceph RBD</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#使用kubeadm安装集群的额外配置"><span class="nav-number">3.1.1.</span> <span class="nav-text">使用kubeadm安装集群的额外配置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#配置-storageclass"><span class="nav-number">3.1.2.</span> <span class="nav-text">配置 storageclass</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#测试使用"><span class="nav-number">3.1.3.</span> <span class="nav-text">测试使用</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用-CephFS"><span class="nav-number">3.2.</span> <span class="nav-text">使用 CephFS</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#在ceph集群创建CephFS"><span class="nav-number">3.2.1.</span> <span class="nav-text">在ceph集群创建CephFS</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#部署cephfs-provisioner"><span class="nav-number">3.2.2.</span> <span class="nav-text">部署cephfs-provisioner</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#测试使用-1"><span class="nav-number">3.2.3.</span> <span class="nav-text">测试使用</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考文档"><span class="nav-number">4.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">mgxian</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("iQlP5L75WVCE1k0dTxnzi15B-gzGzoHsz", "vLlwNDAYowJRpNIfirPwn8Cy");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
