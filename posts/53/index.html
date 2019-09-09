@@ -1,0 +1,1417 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="tdd,test," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="TDD 是什么根据维基百科的定义，测试驱动开发（Test-driven development 简称为 TDD）是一种软件开发过程，这种软件开发过程依赖于对一个非常短的开发循环周期的重复执行。先把需求转换成非常具体的测试用例，然后对软件进行编码让测试用例通过，最后对软件进行改进重构，消除代码的重复，保持代码整洁。没有测试验证的功能，不为会为其编写代码。 TDD 是由多个非常短的开发循环周期组成，一">
+<meta name="keywords" content="tdd,test">
+<meta property="og:type" content="article">
+<meta property="og:title" content="你听说过测试驱动开发吗？">
+<meta property="og:url" content="https://mgxian.dev/posts/53/index.html">
+<meta property="og:site_name" content="mgxian&#39;s blog">
+<meta property="og:description" content="TDD 是什么根据维基百科的定义，测试驱动开发（Test-driven development 简称为 TDD）是一种软件开发过程，这种软件开发过程依赖于对一个非常短的开发循环周期的重复执行。先把需求转换成非常具体的测试用例，然后对软件进行编码让测试用例通过，最后对软件进行改进重构，消除代码的重复，保持代码整洁。没有测试验证的功能，不为会为其编写代码。 TDD 是由多个非常短的开发循环周期组成，一">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://mgxian.dev/posts/53/TDD-flow.png">
+<meta property="og:updated_time" content="2019-09-09T08:34:17.683Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="你听说过测试驱动开发吗？">
+<meta name="twitter:description" content="TDD 是什么根据维基百科的定义，测试驱动开发（Test-driven development 简称为 TDD）是一种软件开发过程，这种软件开发过程依赖于对一个非常短的开发循环周期的重复执行。先把需求转换成非常具体的测试用例，然后对软件进行编码让测试用例通过，最后对软件进行改进重构，消除代码的重复，保持代码整洁。没有测试验证的功能，不为会为其编写代码。 TDD 是由多个非常短的开发循环周期组成，一">
+<meta name="twitter:image" content="https://mgxian.dev/posts/53/TDD-flow.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 'undefined',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://mgxian.dev/posts/53/"/>
+
+
+
+
+
+  <title>你听说过测试驱动开发吗？ | mgxian's blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">mgxian's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://mgxian.dev/posts/53/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="mgxian">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="mgxian's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">你听说过测试驱动开发吗？</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-08T08:01:32+08:00">
+                2019-09-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/开发/" itemprop="url" rel="index">
+                    <span itemprop="name">开发</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/posts/53/" class="leancloud_visitors" data-flag-title="你听说过测试驱动开发吗？">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="TDD-是什么"><a href="#TDD-是什么" class="headerlink" title="TDD 是什么"></a>TDD 是什么</h3><p>根据维基百科的定义，测试驱动开发（Test-driven development 简称为 TDD）是一种软件开发过程，这种软件开发过程依赖于对一个非常短的开发循环周期的重复执行。先把需求转换成非常具体的测试用例，然后对软件进行编码让测试用例通过，最后对软件进行改进重构，消除代码的重复，保持代码整洁。没有测试验证的功能，不为会为其编写代码。</p>
+<p>TDD 是由多个非常短的开发循环周期组成，一个 TDD 开发循环包括如下的3个步骤：</p>
+<ol>
+<li>编写测试，让测试运行失败，此时代码处于红色状态。</li>
+<li>编写生产代码，让测试通过，此时代码处于绿色状态。</li>
+<li>重构代码，消除重复，此时代码处于重构状态。</li>
+</ol>
+<p>这3个步骤就是人们常说的红、绿、重构循环，这就是一个完整的 TDD 开发循环周期。</p>
+<p>TDD 起源于极限编程中的测试先行编程原则，最早由 Kent Beck 提出。TDD 是一种编程技巧，TDD 的主要目标是让代码整洁简单无 Bug。世界著名的软件大师 Kent Beck、Martin Fowler、Robert C. Martin 均表示支持 TDD 开发模式，他们甚至和 David Heinemeier Hansson 就 TDD 本身以及 TDD 对软件设计开发的影响有过深入的讨论：<a href="https://martinfowler.com/articles/is-tdd-dead/" target="_blank" rel="noopener">Is TDD Dead?</a></p>
+<a id="more"></a>
+<h3 id="TDD-的优点"><a href="#TDD-的优点" class="headerlink" title="TDD 的优点"></a>TDD 的优点</h3><p>TDD 的优点有很多，下面列出几点我认为比较重要的优点：</p>
+<ul>
+<li>开发人员更了解业务，更懂得任务分解：由于测试用例需要从用户或者使用者的角度来进行描述，这就要求开发人员能更加充分的了解业务，只有更充分的了解业务，才能写好测试用例，而且由于测试应该尽量小，这也就会促使我们把开发任务分解的更小，只有把任务分解的更小，我们才能达到 TDD 理想的小步快跑的状态。</li>
+<li>代码测试覆盖率高，bug 少：由于先写测试，然后才能写生产代码，只有所有测试通过开发人员才能提交代码，这就会使得代码的测试覆盖率非常高，代码测试覆盖率高能表明我们的代码是经过充分测试的，这样生产中会碰到的 bug 就会相对少许多。</li>
+<li>更自信的重构：由于代码的测试覆盖率高，每个功能都有对应的测试代码，开发人员可以更大胆进行重构，因为有充分的测试代码，当我们重构时，如果破坏了原有的功能，测试就会马上失败，这可以让开发人员在开发阶段就能发现问题，问题越早发现，修复的成本就越低。开发人员不会因为修改代码导致其他功能的损坏却不能及时发现，引发生产 bug 而变得畏手畏脚，开发人员重构代码也会变得非常自信。</li>
+<li>代码整洁易扩展：由于 TDD 开发循环中，我们在不断重构代码，消除代码的坏味道，这会让我们得到更加整洁的代码，为了让软件更加容易测试，这会让我们更深入地思考评估我们的软件架构，从而改善优化我们的软件架构，让软件更加的灵活易扩展。</li>
+<li>不会出现生产无用的代码：由于我们先把需求转换成测试用例，并且我们只为通过测试来编写最少的代码，这样我们几乎不会编写出生产无用的代码，我们所有的代码都是为相应的需求来服务的。</li>
+</ul>
+<h3 id="TDD-开发循环"><a href="#TDD-开发循环" class="headerlink" title="TDD 开发循环"></a>TDD 开发循环</h3><p>一个完整的 TDD 开发循环如下图所示：</p>
+<p><img src="/posts/53/TDD-flow.png" alt=""></p>
+<ol>
+<li>编写测试，测试应该尽量小。运行测试，测试会失败，编译不通过也是一种失败，如果测试没有失败，这表明这个测试没有任何意义，因为这个测试既没有帮助我们实现需求，也没有帮助我们修复 bug 完善代码。这可能是如下的原因导致的：<ul>
+<li>我们在上一次 TDD 循环中，生产代码编写的太多，已经把这次的测试需要测试的功能实现了。</li>
+<li>我们在之前的测试中忽略了这一次测试中应该测试的部分。</li>
+</ul>
+</li>
+<li>编写最少的代码让测试通过。为了尽量脱离测试无法通过的状态中，此步骤中可以使用特殊的方法，比如使用伪实现直接返回常量结果值，然后在重构阶段逐渐替换常量为真正的实现。</li>
+<li>重构代码，减少代码中的重复代码，清除代码中的坏味道。清除生产代码与测试间的重复设计。这一步骤非常的重要，没有这一步骤的 TDD 开发是没有灵魂的 TDD 开发模式，并且可能导致你得到一个比不使用 TDD 开发模式开发出来的还要糟糕的软件。</li>
+<li>重复上述步骤。</li>
+</ol>
+<h3 id="TDD-开发原则"><a href="#TDD-开发原则" class="headerlink" title="TDD 开发原则"></a>TDD 开发原则</h3><p><strong>TDD 三定律</strong></p>
+<ol>
+<li>在编写不能通过的单元测试前，不可编写生产代码。这是 TDD 开发最重要的原则，是 TDD 得以实行的重要指导原则，这条原则包含两层含义：<ul>
+<li>测试先行，在编写生产代码之前要先编写测试代码。</li>
+<li>只有在编写的测试失败的情况下，才能进行生产代码的编写。</li>
+</ul>
+</li>
+<li>只可编写刚好无法通过的单元测试，不能编译也算是不通过。这条原则指导我们在编写测试时，也应该把测试尽量的拆分的小一些，不要指望一个测试就能完整的测试一整个功能。</li>
+<li>只可编写刚好足以通过当前失败测试的生产代码。这条原则告诉我们要编写尽量少的生产代码，尽快脱离测试失败的状态，这里的尽量少的代码并不是表示让你使用语法糖来达到使用少的代码行数，处理更多的事情的目标，这里尽量少的代码的意思是，只需要编写能通过测试的代码即可，不需要处理所有情况，比如异常情况等。这可以通过后面的测试来驱动我们来写这些处理异常情况的代码。</li>
+</ol>
+<p><strong>TDD 开发策略</strong></p>
+<ol>
+<li>伪实现，直接返回常量，并在重构阶段使用变量逐渐替换常量。</li>
+<li>明显实现，由于代码逻辑简单，可以直接写出代码实现。</li>
+<li>三角法，通过添加测试使用其失败，逐渐驱动我们朝目标前进。</li>
+</ol>
+<p>根据错误的情况，伪实现和明显实现可以交替进行，当开发进行顺畅时，可以使用明显实现，当开发过程中经常碰到错误时，可以使用伪实现，慢慢找回自信，然后再使用明显实现进行开发。当完全没有实现思路或者实现思路不清晰时， 可以使用三角法来驱动我们开发，逐渐理清思路。</p>
+<h3 id="TDD-的难点"><a href="#TDD-的难点" class="headerlink" title="TDD 的难点"></a>TDD 的难点</h3><ul>
+<li>任务分解到底需要多细？我们需要把功能分解成多小的任务才合适呢？然后把测试分解多小才合适呢？这是一个比较难的问题，没有人能确切给出答案，一切都需要你自己去体会，去练习，去不断的尝试，去学习，去积累经验。</li>
+<li>到底要测试什么？如果我们测试写的不好，很容易造成测试代码需要跟着生产代码被频繁的修改，这样测试不仅没有给我们的代码带来好处，反而给我们的重构带来很多的额外的负担。关于要测试什么，有一句正确但却无法给你具体建议名言：“测试行为，不要测试实现”，这也是需要长时间的去学习，去练习，去体会的。简单来说你应该测试所有公开给别人使用的接口，类，函数等，而内部私有的你可以选择性的测试，具体的关于应该如何写测试，可以观看如下的关于如何测试的公开演讲视频：<ul>
+<li><a href="https://dave.cheney.net/2019/04/03/absolute-unit-test" target="_blank" rel="noopener">https://dave.cheney.net/2019/04/03/absolute-unit-test</a></li>
+<li><a href="https://www.youtube.com/watch?v=EZ05e7EMOLM" target="_blank" rel="noopener">https://www.youtube.com/watch?v=EZ05e7EMOLM</a></li>
+</ul>
+</li>
+</ul>
+<h3 id="TDD-开发示例"><a href="#TDD-开发示例" class="headerlink" title="TDD 开发示例"></a>TDD 开发示例</h3><p>我们使用 Go 语言来开发一个简单的 http 服务来演示 TDD 开发模式。服务支持如下的两种功能：</p>
+<ul>
+<li><code>GET /users/{name}</code> 会返回用户使用 POST 方法 调用 API 的次数。</li>
+<li><code>POST /users/{name}</code> 会记录用户的一次 API 调用，把之前的 API 调用次数加1。</li>
+</ul>
+<p>TDD 示例代码仓库地址 <a href="https://github.com/mgxian/tdd-example" target="_blank" rel="noopener">https://github.com/mgxian/tdd-example</a></p>
+<h4 id="任务分解"><a href="#任务分解" class="headerlink" title="任务分解"></a>任务分解</h4><ul>
+<li>实现 GET 请求<ul>
+<li>验证响应码</li>
+<li>验证返回 API 调用次数</li>
+<li>验证不存在的用户</li>
+</ul>
+</li>
+<li>实现 POST 请求<ul>
+<li>验证响应码</li>
+<li>验证是否调用了记录函数</li>
+<li>验证调用记录是否正确</li>
+</ul>
+</li>
+<li>集成测试</li>
+<li>完善主程序</li>
+</ul>
+<h4 id="实现-GET-请求"><a href="#实现-GET-请求" class="headerlink" title="实现 GET 请求"></a>实现 GET 请求</h4><h5 id="先写测试"><a href="#先写测试" class="headerlink" title="先写测试"></a>先写测试</h5><p>测试获取 will 的 API 调用次数，并验证响应码</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestGetUsers</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	t.Run(<span class="string">"return will's api call count"</span>, <span class="function"><span class="keyword">func</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">		request, _ := http.NewRequest(http.MethodGet, <span class="string">"/users/will"</span>, <span class="literal">nil</span>)</span><br><span class="line">		response := httptest.NewRecorder()</span><br><span class="line">		UserServer(response, request)</span><br><span class="line">		got := response.Code</span><br><span class="line">		want := http.StatusOK</span><br><span class="line">		<span class="keyword">if</span> got != want &#123;</span><br><span class="line">			t.Errorf(<span class="string">"got %d, want %d"</span>, got, want)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行测试你会得到如下所示的错误</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.\user_test.go:13:3: undefined: UserServer</span><br></pre></td></tr></table></figure>
+<h5 id="编写最少的代码让测试能运行并检查失败的测试输出"><a href="#编写最少的代码让测试能运行并检查失败的测试输出" class="headerlink" title="编写最少的代码让测试能运行并检查失败的测试输出"></a>编写最少的代码让测试能运行并检查失败的测试输出</h5><p>现在让我们添加对<code>UserServer</code>函数的定义</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">UserServer</span><span class="params">()</span></span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>再次运行测试你会得到如下的错误</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">.\user_test.go:13:13: too many arguments in call to UserServer</span><br><span class="line">        have (*httptest.ResponseRecorder, *http.Request)</span><br><span class="line">        want ()</span><br></pre></td></tr></table></figure>
+<p>现在让我们给函数添加相应的参数</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">UserServer</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>再次运行测试，测试通过了。</p>
+<h5 id="先写测试-1"><a href="#先写测试-1" class="headerlink" title="先写测试"></a>先写测试</h5><p>测试响应数据</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestGetUsers</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	t.Run(<span class="string">"return will's api call count"</span>, <span class="function"><span class="keyword">func</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">		request, _ := http.NewRequest(http.MethodGet, <span class="string">"/users/will"</span>, <span class="literal">nil</span>)</span><br><span class="line">		response := httptest.NewRecorder()</span><br><span class="line">		UserServer(response, request)</span><br><span class="line">		got := response.Code</span><br><span class="line">		want := http.StatusOK</span><br><span class="line">		<span class="keyword">if</span> got != want &#123;</span><br><span class="line">			t.Errorf(<span class="string">"got %d, want %d"</span>, got, want)</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		gotCount := response.Body.String()</span><br><span class="line">		wantCount := <span class="string">"6"</span></span><br><span class="line">		<span class="keyword">if</span> gotCount != wantCount &#123;</span><br><span class="line">			t.Errorf(<span class="string">"got % q, want % q"</span>, gotCount, wantCount)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行测试，你会得到如下的错误</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">user_test.go:23: got &quot;&quot;, want &quot;6&quot;</span><br></pre></td></tr></table></figure>
+<h5 id="编写足够的代码让测试通过"><a href="#编写足够的代码让测试通过" class="headerlink" title="编写足够的代码让测试通过"></a>编写足够的代码让测试通过</h5><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">UserServer</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">	fmt.Fprint(w, <span class="string">"6"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>现在测试通过，但是你肯定会想骂人了，你这是写的啥，直接给写死了返回值？说好的不要写死呢？先别着急，由于我们没有存储数据的地方，现在返回一个固定值让测试通过，也不能说不是一个好办法，后面我们会来解决这个问题的。</p>
+<h5 id="完成主程序的结构"><a href="#完成主程序的结构" class="headerlink" title="完成主程序的结构"></a>完成主程序的结构</h5><p>我们尽量早的把经过验证的生产代码，放到主程序中，这样我们可以尽快的得到一个可运行的软件，而且后续的程序结构的改动，可以及时发现。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"log"</span></span><br><span class="line">	<span class="string">"net/http"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	handler := http.HandlerFunc(UserServer)</span><br><span class="line">	<span class="keyword">if</span> err := http.ListenAndServe(<span class="string">":5000"</span>, handler); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">"could not listen on port 5000 %v"</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="先写测试-2"><a href="#先写测试-2" class="headerlink" title="先写测试"></a>先写测试</h5><p>现在让我们再尝试获取 mgxian 的 API 调用数据</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">t.Run(<span class="string">"return mgxian's api call count"</span>, <span class="function"><span class="keyword">func</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	request, _ := http.NewRequest(http.MethodGet, <span class="string">"/users/mgxian"</span>, <span class="literal">nil</span>)</span><br><span class="line">	response := httptest.NewRecorder()</span><br><span class="line">	UserServer(response, request)</span><br><span class="line">	got := response.Code</span><br><span class="line">	want := http.StatusOK</span><br><span class="line">	<span class="keyword">if</span> got != want &#123;</span><br><span class="line">		t.Errorf(<span class="string">"got %d, want %d"</span>, got, want)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	gotCount := response.Body.String()</span><br><span class="line">	wantCount := <span class="string">"8"</span></span><br><span class="line">	<span class="keyword">if</span> gotCount != wantCount &#123;</span><br><span class="line">		t.Errorf(<span class="string">"got % q, want % q"</span>, gotCount, wantCount)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>现在运行测试，你会得到如下的错误</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">user_test.go:40: got &quot;6&quot;, want &quot;8&quot;</span><br></pre></td></tr></table></figure>
+<h5 id="编写足够的代码让测试通过-1"><a href="#编写足够的代码让测试通过-1" class="headerlink" title="编写足够的代码让测试通过"></a>编写足够的代码让测试通过</h5><p>现在让我们来修复这个错误，为了能让我们能根据 user 的不同来响应不同的内容，我们需要从 URL 中获取到 user ，测试驱动着我们完成接下来的工作。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">UserServer</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">	user := r.URL.Path[<span class="built_in">len</span>(<span class="string">"/users/"</span>):]</span><br><span class="line">	<span class="keyword">if</span> user == <span class="string">"will"</span> &#123;</span><br><span class="line">		fmt.Fprint(w, <span class="string">"6"</span>)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> user == <span class="string">"mgxian"</span> &#123;</span><br><span class="line">		fmt.Fprint(w, <span class="string">"8"</span>)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行测试通过。</p>
+<h5 id="重构"><a href="#重构" class="headerlink" title="重构"></a>重构</h5><p>根据 user 来响应不同内容的逻辑我们可以放在一个单独的函数中去。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">UserServer</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">	user := r.URL.Path[<span class="built_in">len</span>(<span class="string">"/users/"</span>):]</span><br><span class="line">	apiCallCount := GetUserAPICallCount(user)</span><br><span class="line">	fmt.Fprint(w, apiCallCount)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GetUserAPICallCount</span><span class="params">(user <span class="keyword">string</span>)</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> user == <span class="string">"will"</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="string">"6"</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> user == <span class="string">"mgxian"</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="string">"8"</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="string">""</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>重构之后，运行测试，测试通过，我们观察到我们的测试程序有部分代码是重复的，我们也可以进行重构，不仅生产代码需要重构，测试代码也需要重构。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestGetUsers</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	t.Run(<span class="string">"return will's api call count"</span>, <span class="function"><span class="keyword">func</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">		user := <span class="string">"will"</span></span><br><span class="line">		request := newGetUserAPICallCountRequest(user)</span><br><span class="line">		response := httptest.NewRecorder()</span><br><span class="line">		UserServer(response, request)</span><br><span class="line"></span><br><span class="line">		assertStatus(t, response.Code, http.StatusOK)</span><br><span class="line">		assertCount(t, response.Body.String(), <span class="string">"6"</span>)</span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	t.Run(<span class="string">"return mgxian's api call count"</span>, <span class="function"><span class="keyword">func</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">		user := <span class="string">"mgxian"</span></span><br><span class="line">		request := newGetUserAPICallCountRequest(user)</span><br><span class="line">		response := httptest.NewRecorder()</span><br><span class="line">		UserServer(response, request)</span><br><span class="line"></span><br><span class="line">		assertStatus(t, response.Code, http.StatusOK)</span><br><span class="line">		assertCount(t, response.Body.String(), <span class="string">"8"</span>)</span><br><span class="line">	&#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">newGetUserAPICallCountRequest</span><span class="params">(user <span class="keyword">string</span>)</span> *<span class="title">http</span>.<span class="title">Request</span></span> &#123;</span><br><span class="line">	request, _ := http.NewRequest(http.MethodGet, fmt.Sprintf(<span class="string">"/users/%s"</span>, user), <span class="literal">nil</span>)</span><br><span class="line">	<span class="keyword">return</span> request</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">assertStatus</span><span class="params">(t *testing.T, got, want <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	t.Helper()</span><br><span class="line">	<span class="keyword">if</span> got != want &#123;</span><br><span class="line">		t.Errorf(<span class="string">"wrong status code got %d, want %d"</span>, got, want)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">assertCount</span><span class="params">(t *testing.T, got, want <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">	t.Helper()</span><br><span class="line">	<span class="keyword">if</span> got != want &#123;</span><br><span class="line">		t.Errorf(<span class="string">"got % q, want % q"</span>, got, want)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行测试，测试通过，测试代码重构完成。现在让我们进一步的思考，我们的 UserServer 相当于 MVC 模式中的 Controller ，GetUserAPICallCount 相当于 Model ，我们应该让它们之间通过 Interface UserStore 来交流，隔离关注点。为了能让 UserServer 使用 UserStore 我们应该把 UserServer 定义为 struct 类型。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> UserStore <span class="keyword">interface</span> &#123;</span><br><span class="line">	GetUserAPICallCount(user <span class="keyword">string</span>) <span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> UserServer <span class="keyword">struct</span> &#123;</span><br><span class="line">	store UserStore</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(u *UserServer)</span> <span class="title">ServeHTTP</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">	user := r.URL.Path[<span class="built_in">len</span>(<span class="string">"/users/"</span>):]</span><br><span class="line">	apiCallCount := u.store.GetUserAPICallCount(user)</span><br><span class="line">	fmt.Fprint(w, apiCallCount)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行测试你会得到如下的错误</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">main.go:9:30: type UserServer is not an expression</span><br></pre></td></tr></table></figure>
+<p>修改 main 函数新创建的 UserServer</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	server := &amp;UserServer&#123;&#125;</span><br><span class="line">	<span class="keyword">if</span> err := http.ListenAndServe(<span class="string">":5000"</span>, server); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">"could not listen on port 5000 %v"</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>修改测试使用新创建的 UserServer</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestGetUsers</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	server := &amp;UserServer&#123;&#125;</span><br><span class="line">	t.Run(<span class="string">"return will's api call count"</span>, <span class="function"><span class="keyword">func</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">		user := <span class="string">"will"</span></span><br><span class="line">		request := newGetUserAPICallCountRequest(user)</span><br><span class="line">		response := httptest.NewRecorder()</span><br><span class="line">		server.ServeHTTP(response, request)</span><br><span class="line"></span><br><span class="line">		assertStatus(t, response.Code, http.StatusOK)</span><br><span class="line">		assertCount(t, response.Body.String(), <span class="string">"6"</span>)</span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	t.Run(<span class="string">"return mgxian's api call count"</span>, <span class="function"><span class="keyword">func</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">		user := <span class="string">"mgxian"</span></span><br><span class="line">		request := newGetUserAPICallCountRequest(user)</span><br><span class="line">		response := httptest.NewRecorder()</span><br><span class="line">		server.ServeHTTP(response, request)</span><br><span class="line"></span><br><span class="line">		assertStatus(t, response.Code, http.StatusOK)</span><br><span class="line">		assertCount(t, response.Body.String(), <span class="string">"8"</span>)</span><br><span class="line">	&#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>再次运行测试你会得到如下的错误，这是由于我们并没有传递 UserStore 给 UserServer 。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">panic: runtime error: invalid memory address or nil pointer dereference [recovered]</span><br><span class="line">        panic: runtime error: invalid memory address or nil pointer dereference</span><br><span class="line">[signal 0xc0000005 code=0x0 addr=0x18 pc=0x66575f]</span><br></pre></td></tr></table></figure>
+<p>编写一个 stub 类型的 mock 来模拟测试</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> StubUserStore <span class="keyword">struct</span> &#123;</span><br><span class="line">	apiCallCounts <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *StubUserStore)</span> <span class="title">GetUserAPICallCount</span><span class="params">(user <span class="keyword">string</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> s.apiCallCounts[user]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>修改测试使用我们 mock 出来的 StubUserStore</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestGetUsers</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	store := StubUserStore&#123;</span><br><span class="line">		apiCallCounts: <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">int</span>&#123;</span><br><span class="line">			<span class="string">"will"</span>:   <span class="number">6</span>,</span><br><span class="line">			<span class="string">"mgxian"</span>: <span class="number">8</span>,</span><br><span class="line">		&#125;,</span><br><span class="line">	&#125;</span><br><span class="line">	server := &amp;UserServer&#123;&amp;store&#125;</span><br><span class="line">	t.Run(<span class="string">"return will's api call count"</span>, <span class="function"><span class="keyword">func</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">		user := <span class="string">"will"</span></span><br><span class="line">		request := newGetUserAPICallCountRequest(user)</span><br><span class="line">		response := httptest.NewRecorder()</span><br><span class="line">		server.ServeHTTP(response, request)</span><br><span class="line"></span><br><span class="line">		assertStatus(t, response.Code, http.StatusOK)</span><br><span class="line">		assertCount(t, response.Body.String(), <span class="string">"6"</span>)</span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	t.Run(<span class="string">"return mgxian's api call count"</span>, <span class="function"><span class="keyword">func</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">		user := <span class="string">"mgxian"</span></span><br><span class="line">		request := newGetUserAPICallCountRequest(user)</span><br><span class="line">		response := httptest.NewRecorder()</span><br><span class="line">		server.ServeHTTP(response, request)</span><br><span class="line"></span><br><span class="line">		assertStatus(t, response.Code, http.StatusOK)</span><br><span class="line">		assertCount(t, response.Body.String(), <span class="string">"8"</span>)</span><br><span class="line">	&#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>再次运行测试，测试全部通过。</p>
+<p>为了使我们的主程序能正常运行，我们需要实现一个假的 UserStore</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"log"</span></span><br><span class="line">	<span class="string">"net/http"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> InMemoryUserStore <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(i *InMemoryUserStore)</span> <span class="title">GetUserAPICallCount</span><span class="params">(user <span class="keyword">string</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">666</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	store := InMemoryUserStore&#123;&#125;</span><br><span class="line">	server := &amp;UserServer&#123;&amp;store&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> err := http.ListenAndServe(<span class="string">":5000"</span>, server); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">"could not listen on port 5000 %v"</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="先写测试-3"><a href="#先写测试-3" class="headerlink" title="先写测试"></a>先写测试</h5><p>测试一个不存在的用户</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">t.Run(<span class="string">"return 404 on unknown user"</span>, <span class="function"><span class="keyword">func</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	user := <span class="string">"unknown"</span></span><br><span class="line">	request := newGetUserAPICallCountRequest(user)</span><br><span class="line">	response := httptest.NewRecorder()</span><br><span class="line">	server.ServeHTTP(response, request)</span><br><span class="line"></span><br><span class="line">	assertStatus(t, response.Code, http.StatusNotFound)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>运行测试得到如下的错误</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">user_test.go:52: wrong status code got 200, want 404</span><br></pre></td></tr></table></figure>
+<h5 id="编写足够的代码让测试通过-2"><a href="#编写足够的代码让测试通过-2" class="headerlink" title="编写足够的代码让测试通过"></a>编写足够的代码让测试通过</h5><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(u *UserServer)</span> <span class="title">ServeHTTP</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">	user := r.URL.Path[<span class="built_in">len</span>(<span class="string">"/users/"</span>):]</span><br><span class="line">	apiCallCount := u.store.GetUserAPICallCount(user)</span><br><span class="line">	<span class="keyword">if</span> apiCallCount == <span class="number">0</span> &#123;</span><br><span class="line">		w.WriteHeader(http.StatusNotFound)</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Fprint(w, apiCallCount)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行测试，测试通过。</p>
+<h4 id="实现-POST-请求"><a href="#实现-POST-请求" class="headerlink" title="实现 POST 请求"></a>实现 POST 请求</h4><h5 id="先写测试-4"><a href="#先写测试-4" class="headerlink" title="先写测试"></a>先写测试</h5><p>测试记录 API 调用次数，验证响应码</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestStoreAPICalls</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	store := StubUserStore&#123;</span><br><span class="line">		<span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">int</span>&#123;&#125;,</span><br><span class="line">	&#125;</span><br><span class="line">	server := &amp;UserServer&#123;&amp;store&#125;</span><br><span class="line"></span><br><span class="line">	t.Run(<span class="string">"return accepted on POST"</span>, <span class="function"><span class="keyword">func</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">		request, _ := http.NewRequest(http.MethodPost, <span class="string">"/users/will"</span>, <span class="literal">nil</span>)</span><br><span class="line">		response := httptest.NewRecorder()</span><br><span class="line"></span><br><span class="line">		server.ServeHTTP(response, request)</span><br><span class="line">		assertStatus(t, response.Code, http.StatusAccepted)</span><br><span class="line">	&#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行测试，你会得到如下的错误</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">user_test.go:67: wrong status code got 404, want 202</span><br></pre></td></tr></table></figure>
+<h5 id="编写足够的代码让测试通过-3"><a href="#编写足够的代码让测试通过-3" class="headerlink" title="编写足够的代码让测试通过"></a>编写足够的代码让测试通过</h5><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(u *UserServer)</span> <span class="title">ServeHTTP</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">	method := r.Method</span><br><span class="line">	<span class="keyword">if</span> method == http.MethodPost &#123;</span><br><span class="line">		w.WriteHeader(http.StatusAccepted)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	user := r.URL.Path[<span class="built_in">len</span>(<span class="string">"/users/"</span>):]</span><br><span class="line">	apiCallCount := u.store.GetUserAPICallCount(user)</span><br><span class="line">	<span class="keyword">if</span> apiCallCount == <span class="number">0</span> &#123;</span><br><span class="line">		w.WriteHeader(http.StatusNotFound)</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Fprint(w, apiCallCount)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行测试通过。</p>
+<h5 id="重构-1"><a href="#重构-1" class="headerlink" title="重构"></a>重构</h5><p>把处理 post 和 get  请求的业务逻辑封装到单独的函数。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(u *UserServer)</span> <span class="title">ServeHTTP</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">	<span class="keyword">switch</span> r.Method &#123;</span><br><span class="line">	<span class="keyword">case</span> http.MethodGet:</span><br><span class="line">		u.showAPICallCount(w, r)</span><br><span class="line">	<span class="keyword">case</span> http.MethodPost:</span><br><span class="line">		u.processAPICall(w, r)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(u *UserServer)</span> <span class="title">showAPICallCount</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">	user := r.URL.Path[<span class="built_in">len</span>(<span class="string">"/users/"</span>):]</span><br><span class="line">	apiCallCount := u.store.GetUserAPICallCount(user)</span><br><span class="line">	<span class="keyword">if</span> apiCallCount == <span class="number">0</span> &#123;</span><br><span class="line">		w.WriteHeader(http.StatusNotFound)</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Fprint(w, apiCallCount)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(u *UserServer)</span> <span class="title">processAPICall</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">	w.WriteHeader(http.StatusAccepted)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行测试通过。</p>
+<h5 id="先写测试-5"><a href="#先写测试-5" class="headerlink" title="先写测试"></a>先写测试</h5><p>验证当使用 POST 方法时，UserStore 是否被调用记录 API 请求</p>
+<p>给我们之前实现的 StubUserStore 添加 RecordAPICall 函数，记录并验证函数的调用。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> StubUserStore <span class="keyword">struct</span> &#123;</span><br><span class="line">	apiCallCounts <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">int</span></span><br><span class="line">	apiCalls      []<span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *StubUserStore)</span> <span class="title">GetUserAPICallCount</span><span class="params">(user <span class="keyword">string</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> s.apiCallCounts[user]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *StubUserStore)</span> <span class="title">RecordAPICall</span><span class="params">(user <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">	s.apiCalls = <span class="built_in">append</span>(s.apiCalls, user)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>添加测试验证调用</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestStoreAPICalls</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	store := StubUserStore&#123;</span><br><span class="line">		<span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">int</span>&#123;&#125;,</span><br><span class="line">	&#125;</span><br><span class="line">	server := &amp;UserServer&#123;&amp;store&#125;</span><br><span class="line"></span><br><span class="line">	t.Run(<span class="string">"record api call when POST"</span>, <span class="function"><span class="keyword">func</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">		request, _ := http.NewRequest(http.MethodPost, <span class="string">"/users/will"</span>, <span class="literal">nil</span>)</span><br><span class="line">		response := httptest.NewRecorder()</span><br><span class="line"></span><br><span class="line">		server.ServeHTTP(response, request)</span><br><span class="line">		assertStatus(t, response.Code, http.StatusAccepted)</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> <span class="built_in">len</span>(store.apiCalls) != <span class="number">1</span> &#123;</span><br><span class="line">			t.Errorf(<span class="string">"got %d calls to RecordAPICall want %d"</span>, <span class="built_in">len</span>(store.apiCalls), <span class="number">1</span>)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行测试，你会得到如下的错误</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">user_test.go:63:17: too few values in StubUserStore literal</span><br></pre></td></tr></table></figure>
+<h5 id="编写最少的代码让测试能运行并检查失败的测试输出-1"><a href="#编写最少的代码让测试能运行并检查失败的测试输出-1" class="headerlink" title="编写最少的代码让测试能运行并检查失败的测试输出"></a>编写最少的代码让测试能运行并检查失败的测试输出</h5><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestStoreAPICalls</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	store := StubUserStore&#123;</span><br><span class="line">		<span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">int</span>&#123;&#125;,</span><br><span class="line">		<span class="literal">nil</span>,</span><br><span class="line">	&#125;</span><br><span class="line">	server := &amp;UserServer&#123;&amp;store&#125;</span><br><span class="line"></span><br><span class="line">	t.Run(<span class="string">"record api call when POST"</span>, <span class="function"><span class="keyword">func</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">		request, _ := http.NewRequest(http.MethodPost, <span class="string">"/users/will"</span>, <span class="literal">nil</span>)</span><br><span class="line">		response := httptest.NewRecorder()</span><br><span class="line"></span><br><span class="line">		server.ServeHTTP(response, request)</span><br><span class="line">		assertStatus(t, response.Code, http.StatusAccepted)</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> <span class="built_in">len</span>(store.apiCalls) != <span class="number">1</span> &#123;</span><br><span class="line">			t.Errorf(<span class="string">"got %d calls to RecordAPICall want %d"</span>, <span class="built_in">len</span>(store.apiCalls), <span class="number">1</span>)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行测试，你会得到如下的错误</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">user_test.go:76: got 0 calls to RecordAPICall want 1</span><br></pre></td></tr></table></figure>
+<h5 id="编写足够的代码让测试通过-4"><a href="#编写足够的代码让测试通过-4" class="headerlink" title="编写足够的代码让测试通过"></a>编写足够的代码让测试通过</h5><p>给 UserStore 添加相应的函数</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> UserStore <span class="keyword">interface</span> &#123;</span><br><span class="line">	GetUserAPICallCount(user <span class="keyword">string</span>) <span class="keyword">int</span></span><br><span class="line">	RecordAPICall(user <span class="keyword">string</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由于编译器报错，我需要 InMemoryUserStore 实现相应的函数</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(i *InMemoryUserStore)</span> <span class="title">RecordAPICall</span><span class="params">(user <span class="keyword">string</span>)</span></span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+<p>编写代码调用 RecordAPICall</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(u *UserServer)</span> <span class="title">processAPICall</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">	u.store.RecordAPICall(<span class="string">"bob"</span>)</span><br><span class="line">	w.WriteHeader(http.StatusAccepted)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行测试，测试通过。</p>
+<h5 id="先写测试-6"><a href="#先写测试-6" class="headerlink" title="先写测试"></a>先写测试</h5><p>验证 API 调用的用户记录</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestStoreAPICalls</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	store := StubUserStore&#123;</span><br><span class="line">		<span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">int</span>&#123;&#125;,</span><br><span class="line">		<span class="literal">nil</span>,</span><br><span class="line">	&#125;</span><br><span class="line">	server := &amp;UserServer&#123;&amp;store&#125;</span><br><span class="line"></span><br><span class="line">	t.Run(<span class="string">"record api call when POST"</span>, <span class="function"><span class="keyword">func</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">		user := <span class="string">"will"</span></span><br><span class="line">		request, _ := http.NewRequest(http.MethodPost, fmt.Sprintf(<span class="string">"/users/%s"</span>, user), <span class="literal">nil</span>)</span><br><span class="line">		response := httptest.NewRecorder()</span><br><span class="line"></span><br><span class="line">		server.ServeHTTP(response, request)</span><br><span class="line">		assertStatus(t, response.Code, http.StatusAccepted)</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> <span class="built_in">len</span>(store.apiCalls) != <span class="number">1</span> &#123;</span><br><span class="line">			t.Errorf(<span class="string">"got %d calls to RecordAPICall want %d"</span>, <span class="built_in">len</span>(store.apiCalls), <span class="number">1</span>)</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> store.apiCalls[<span class="number">0</span>] != user &#123;</span><br><span class="line">			t.Errorf(<span class="string">"did not record correct api call user got %q want %q"</span>, store.apiCalls[<span class="number">0</span>], user)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行测试，你会得到如下的错误</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">user_test.go:81: did not record correct api call user got &quot;bob&quot; want &quot;will&quot;</span><br></pre></td></tr></table></figure>
+<h5 id="编写足够的代码让测试通过-5"><a href="#编写足够的代码让测试通过-5" class="headerlink" title="编写足够的代码让测试通过"></a>编写足够的代码让测试通过</h5><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(u *UserServer)</span> <span class="title">processAPICall</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">	user := r.URL.Path[<span class="built_in">len</span>(<span class="string">"/users/"</span>):]</span><br><span class="line">	u.store.RecordAPICall(user)</span><br><span class="line">	w.WriteHeader(http.StatusAccepted)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行测试通过。</p>
+<h5 id="重构-2"><a href="#重构-2" class="headerlink" title="重构"></a>重构</h5><p>从请求中获取 user 的代码重复，提取到调用方，以参数形式传递。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(u *UserServer)</span> <span class="title">ServeHTTP</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">	user := r.URL.Path[<span class="built_in">len</span>(<span class="string">"/users/"</span>):]</span><br><span class="line">	<span class="keyword">switch</span> r.Method &#123;</span><br><span class="line">	<span class="keyword">case</span> http.MethodGet:</span><br><span class="line">		u.showAPICallCount(w, user)</span><br><span class="line">	<span class="keyword">case</span> http.MethodPost:</span><br><span class="line">		u.processAPICall(w, user)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(u *UserServer)</span> <span class="title">showAPICallCount</span><span class="params">(w http.ResponseWriter, user <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">	apiCallCount := u.store.GetUserAPICallCount(user)</span><br><span class="line">	<span class="keyword">if</span> apiCallCount == <span class="number">0</span> &#123;</span><br><span class="line">		w.WriteHeader(http.StatusNotFound)</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Fprint(w, apiCallCount)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(u *UserServer)</span> <span class="title">processAPICall</span><span class="params">(w http.ResponseWriter, user <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">	u.store.RecordAPICall(user)</span><br><span class="line">	w.WriteHeader(http.StatusAccepted)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行测试，测试通过，重构完成。</p>
+<h4 id="集成测试"><a href="#集成测试" class="headerlink" title="集成测试"></a>集成测试</h4><p>两个功能已经分别开发完成，我们现在进行集成测试，由于集成测试不容易写，出错后不易查找，并且由于可能会使用真实的组件如数据库，所以可能会运行缓慢。因此集成测试应该尽量少写。</p>
+<h5 id="先写测试-7"><a href="#先写测试-7" class="headerlink" title="先写测试"></a>先写测试</h5><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestRecordAPICallsAndGetThem</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	store := InMemoryUserStore&#123;&#125;</span><br><span class="line">	server := UserServer&#123;&amp;store&#125;</span><br><span class="line">	user := <span class="string">"will"</span></span><br><span class="line"></span><br><span class="line">	request, _ := http.NewRequest(http.MethodPost, fmt.Sprintf(<span class="string">"/users/%s"</span>, user), <span class="literal">nil</span>)</span><br><span class="line">	server.ServeHTTP(httptest.NewRecorder(), request)</span><br><span class="line">	server.ServeHTTP(httptest.NewRecorder(), request)</span><br><span class="line">	server.ServeHTTP(httptest.NewRecorder(), request)</span><br><span class="line"></span><br><span class="line">	response := httptest.NewRecorder()</span><br><span class="line">	request = newGetUserAPICallCountRequest(user)</span><br><span class="line">	server.ServeHTTP(response, request)</span><br><span class="line"></span><br><span class="line">	assertStatus(t, response.Code, http.StatusOK)</span><br><span class="line">	assertCount(t, response.Body.String(), <span class="string">"3"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行测试，你会得到如下 的错误</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">server_integration_test.go:25: got &quot;666&quot;, want &quot;3&quot;</span><br></pre></td></tr></table></figure>
+<h5 id="编写足够的代码让测试通过-6"><a href="#编写足够的代码让测试通过-6" class="headerlink" title="编写足够的代码让测试通过"></a>编写足够的代码让测试通过</h5><p>为 InMemoryUserStore 编写具体实现</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> InMemoryUserStore <span class="keyword">struct</span> &#123;</span><br><span class="line">	store <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(i *InMemoryUserStore)</span> <span class="title">GetUserAPICallCount</span><span class="params">(user <span class="keyword">string</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> i.store[user]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(i *InMemoryUserStore)</span> <span class="title">RecordAPICall</span><span class="params">(user <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">	i.store[user]++</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewInMemoryUserStore</span><span class="params">()</span> *<span class="title">InMemoryUserStore</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> &amp;InMemoryUserStore&#123;</span><br><span class="line">		store: <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">int</span>),</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>集成测试使用 InMemoryUserStore </p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestRecordAPICallsAndGetThem</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">	store := NewInMemoryUserStore()</span><br><span class="line">	server := UserServer&#123;store&#125;</span><br><span class="line">	user := <span class="string">"will"</span></span><br><span class="line"></span><br><span class="line">	request, _ := http.NewRequest(http.MethodPost, fmt.Sprintf(<span class="string">"/users/%s"</span>, user), <span class="literal">nil</span>)</span><br><span class="line">	server.ServeHTTP(httptest.NewRecorder(), request)</span><br><span class="line">	server.ServeHTTP(httptest.NewRecorder(), request)</span><br><span class="line">	server.ServeHTTP(httptest.NewRecorder(), request)</span><br><span class="line"></span><br><span class="line">	response := httptest.NewRecorder()</span><br><span class="line">	request = newGetUserAPICallCountRequest(user)</span><br><span class="line">	server.ServeHTTP(response, request)</span><br><span class="line"></span><br><span class="line">	assertStatus(t, response.Code, http.StatusOK)</span><br><span class="line">	assertCount(t, response.Body.String(), <span class="string">"3"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>再次运行测试，测试通过。</p>
+<h4 id="完善主程序"><a href="#完善主程序" class="headerlink" title="完善主程序"></a>完善主程序</h4><p>修改主程序使用 NewInMemoryUserStore 函数。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	store := NewInMemoryUserStore()</span><br><span class="line">	server := &amp;UserServer&#123;store&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> err := http.ListenAndServe(<span class="string">":5000"</span>, server); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">"could not listen on port 5000 %v"</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>到此一个使用内存来记录查询用户 API 调用次数的程序已经完成，后续步骤你可选择其他数据存储来替换内存存储进行数据的持久化。只需要实现 UserStore 接口即可。</p>
+<h3 id="TDD-总结"><a href="#TDD-总结" class="headerlink" title="TDD 总结"></a>TDD 总结</h3><p>当你学习了 TDD 之后，你就学会了这种小步快跑的开发方法，你可以把它应用在你没有太大自信的关键核心组件的开发中，TDD 能帮助你以小步快跑的方式向目标前进，TDD 只是给了你一种小步快跑的能力，你可以只在关键的时候才使用这种能力。学习 TDD 并不是为了让你在所有涉及到编码的地方全部使用 TDD 开发模式。</p>
+<p>TDD 的关键在于驱动（driven），要让测试驱动我们来进行功能开发，每写一个测试，都驱动我们写更多的生产代码，都在向实现我们的功能的方向前进。</p>
+<p>重构是 TDD 中重要的环节，如果没有重构，你得到的可能只是由一堆零乱代码组合的勉强凑合工作的软件。只有注重重构才能让我们的代码更整洁，更利于后续 TDD 开发模式的正常执行。</p>
+<p>TDD 开发模式减轻人开发人员的心智负担，通过红、绿、重构循环，开发人员每一个阶段都只有一个特定的目标，这使得开发人员每个阶段的关注点只有一个，注意力集中。</p>
+<p>TDD 开发模式能让开发人员更自信，由于我们的任务分解的小，开发循环比较短，我们可以在很短时间内获得测试的反馈，我们几乎随时都有可运行的软件，这给我们开发人员带来很强的安全感，这给了我们自信心。</p>
+<p>TDD 不是银弹，不是所有项目开发都可以使用 TDD 开发模式来进行开发，在测试成本比较高的情况下就不太适合使用 TDD 开发模式，比如在前端（Web、iOS、Android）的项目开发中，检查页面中的元素的位置及大小等操作比较麻烦，就不太适合使用 TDD 开发模式，但是我们可以尽量减少 UI 部分的业务逻辑，UI 只根据其他模块处理后的数据来做简单直接的展示，把 TDD 应用在其他为 UI 提供数据的模块开发中。</p>
+<p>TDD 并非要求我们非常严格的遵循 TDD 三定律，我们可以根据特殊情况，做适当的小调整，但是整体流程与节奏不能有偏离，TDD 三定律并不是为了给你加上了无法挣脱的枷锁，它只是给了我们一个整体指导原则。</p>
+<p>要想流畅的使用 TDD 需要不断的练习，掌握 TDD 的节奏是流畅使用 TDD 关键。想要真正学会使用 TDD ，只能练习、练习、再练习。</p>
+<h3 id="后续学习"><a href="#后续学习" class="headerlink" title="后续学习"></a>后续学习</h3><ul>
+<li><a href="https://book.douban.com/subject/1230036/" target="_blank" rel="noopener">测试驱动开发</a></li>
+<li><a href="https://book.douban.com/subject/30468597/" target="_blank" rel="noopener">重构</a></li>
+<li><a href="https://book.douban.com/subject/30333919/" target="_blank" rel="noopener">架构整洁之道</a></li>
+</ul>
+<h3 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h3><ul>
+<li><p><a href="https://book.douban.com/subject/1230036/" target="_blank" rel="noopener">https://book.douban.com/subject/1230036/</a></p>
+</li>
+<li><p><a href="https://quii.gitbook.io/learn-go-with-tests/build-an-application/http-server" target="_blank" rel="noopener">https://quii.gitbook.io/learn-go-with-tests/build-an-application/http-server</a></p>
+</li>
+<li><p><a href="https://juejin.im/post/5c3e73876fb9a049d37f5db1" target="_blank" rel="noopener">https://juejin.im/post/5c3e73876fb9a049d37f5db1</a></p>
+</li>
+<li><p><a href="https://www.guru99.com/test-driven-development.html" target="_blank" rel="noopener">https://www.guru99.com/test-driven-development.html</a></p>
+</li>
+<li><p><a href="https://en.wikipedia.org/wiki/Test-driven_development" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Test-driven_development</a></p>
+</li>
+<li><p><a href="https://blog.testlodge.com/what-is-tdd/" target="_blank" rel="noopener">https://blog.testlodge.com/what-is-tdd/</a></p>
+</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/tdd/" rel="tag"># tdd</a>
+          
+            <a href="/tags/test/" rel="tag"># test</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/posts/52/" rel="next" title="如何在测试中更好地使用mock">
+                <i class="fa fa-chevron-left"></i> 如何在测试中更好地使用mock
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="mgxian" />
+          <p class="site-author-name" itemprop="name">mgxian</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+           
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">53</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">45</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/mgxian" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#TDD-是什么"><span class="nav-number">1.</span> <span class="nav-text">TDD 是什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TDD-的优点"><span class="nav-number">2.</span> <span class="nav-text">TDD 的优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TDD-开发循环"><span class="nav-number">3.</span> <span class="nav-text">TDD 开发循环</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TDD-开发原则"><span class="nav-number">4.</span> <span class="nav-text">TDD 开发原则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TDD-的难点"><span class="nav-number">5.</span> <span class="nav-text">TDD 的难点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TDD-开发示例"><span class="nav-number">6.</span> <span class="nav-text">TDD 开发示例</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#任务分解"><span class="nav-number">6.1.</span> <span class="nav-text">任务分解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#实现-GET-请求"><span class="nav-number">6.2.</span> <span class="nav-text">实现 GET 请求</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#先写测试"><span class="nav-number">6.2.1.</span> <span class="nav-text">先写测试</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#编写最少的代码让测试能运行并检查失败的测试输出"><span class="nav-number">6.2.2.</span> <span class="nav-text">编写最少的代码让测试能运行并检查失败的测试输出</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#先写测试-1"><span class="nav-number">6.2.3.</span> <span class="nav-text">先写测试</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#编写足够的代码让测试通过"><span class="nav-number">6.2.4.</span> <span class="nav-text">编写足够的代码让测试通过</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#完成主程序的结构"><span class="nav-number">6.2.5.</span> <span class="nav-text">完成主程序的结构</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#先写测试-2"><span class="nav-number">6.2.6.</span> <span class="nav-text">先写测试</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#编写足够的代码让测试通过-1"><span class="nav-number">6.2.7.</span> <span class="nav-text">编写足够的代码让测试通过</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#重构"><span class="nav-number">6.2.8.</span> <span class="nav-text">重构</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#先写测试-3"><span class="nav-number">6.2.9.</span> <span class="nav-text">先写测试</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#编写足够的代码让测试通过-2"><span class="nav-number">6.2.10.</span> <span class="nav-text">编写足够的代码让测试通过</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#实现-POST-请求"><span class="nav-number">6.3.</span> <span class="nav-text">实现 POST 请求</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#先写测试-4"><span class="nav-number">6.3.1.</span> <span class="nav-text">先写测试</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#编写足够的代码让测试通过-3"><span class="nav-number">6.3.2.</span> <span class="nav-text">编写足够的代码让测试通过</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#重构-1"><span class="nav-number">6.3.3.</span> <span class="nav-text">重构</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#先写测试-5"><span class="nav-number">6.3.4.</span> <span class="nav-text">先写测试</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#编写最少的代码让测试能运行并检查失败的测试输出-1"><span class="nav-number">6.3.5.</span> <span class="nav-text">编写最少的代码让测试能运行并检查失败的测试输出</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#编写足够的代码让测试通过-4"><span class="nav-number">6.3.6.</span> <span class="nav-text">编写足够的代码让测试通过</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#先写测试-6"><span class="nav-number">6.3.7.</span> <span class="nav-text">先写测试</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#编写足够的代码让测试通过-5"><span class="nav-number">6.3.8.</span> <span class="nav-text">编写足够的代码让测试通过</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#重构-2"><span class="nav-number">6.3.9.</span> <span class="nav-text">重构</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#集成测试"><span class="nav-number">6.4.</span> <span class="nav-text">集成测试</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#先写测试-7"><span class="nav-number">6.4.1.</span> <span class="nav-text">先写测试</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#编写足够的代码让测试通过-6"><span class="nav-number">6.4.2.</span> <span class="nav-text">编写足够的代码让测试通过</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#完善主程序"><span class="nav-number">6.5.</span> <span class="nav-text">完善主程序</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TDD-总结"><span class="nav-number">7.</span> <span class="nav-text">TDD 总结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#后续学习"><span class="nav-number">8.</span> <span class="nav-text">后续学习</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考文档"><span class="nav-number">9.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">mgxian</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("iQlP5L75WVCE1k0dTxnzi15B-gzGzoHsz", "vLlwNDAYowJRpNIfirPwn8Cy");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
